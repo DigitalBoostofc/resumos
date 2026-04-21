@@ -582,41 +582,92 @@
     <!-- ═══════════════════════════════════════════════════ UA5 -->
     <section id="ua5">
       <h2>UA5 — Arquitetura Orientada a Serviços (SOA)</h2>
-      <p class="subtitle">SOA organiza o sistema como uma coleção de serviços de negócio reutilizáveis e interoperáveis. Pense em cada serviço como um departamento de uma empresa: autônomo, com responsabilidade clara, mas integrado ao todo.</p>
+      <p class="subtitle">SOA organiza o sistema como uma coleção de serviços de negócio reutilizáveis e interoperáveis. Cada serviço é autônomo, com responsabilidade clara e interface bem definida — como departamentos de uma empresa que se comunicam por canais padronizados.</p>
 
-      <h3>Conceitos Fundamentais</h3>
-      <ul>
-        <li><strong>Serviço:</strong> unidade funcional autônoma com interface bem definida. Ex.: <code>calcularFrete</code>, <code>autenticarUsuário</code>, <code>emitirNota</code>.</li>
-        <li><strong>Contrato:</strong> definição formal do que o serviço aceita e retorna — independente da tecnologia interna.</li>
-        <li><strong>ESB (Enterprise Service Bus):</strong> barramento central que roteia mensagens entre serviços em SOA tradicional.</li>
-        <li><strong>Interoperabilidade:</strong> serviços em linguagens diferentes conseguem se comunicar via protocolo comum (SOAP/XML ou REST/JSON).</li>
-      </ul>
+      <h3>Por que SOA surgiu? — A evolução dos paradigmas</h3>
+      <p>Antes de SOA, os sistemas eram fortemente acoplados: um banco de dados era compartilhado, alterações em uma área quebravam outra, e integrar sistemas de fornecedores diferentes era um pesadelo. O modelo de TI era <strong>reativo</strong> — esperava o problema surgir para resolver.</p>
+      <table>
+        <tr><th>Era</th><th>Paradigma</th><th>Problema que resolveu</th></tr>
+        <tr><td>Até anos 70</td><td>Programação estruturada</td><td>Organizar código em funções e módulos</td></tr>
+        <tr><td>Anos 80–90</td><td>Orientação a Objetos (OO)</td><td>Modelar entidades do mundo real; reutilização via herança</td></tr>
+        <tr><td>Anos 2000</td><td>SOA</td><td>Integrar sistemas heterogêneos; expor lógica de negócio como serviço</td></tr>
+        <tr><td>Anos 2010+</td><td>Cloud / Microsserviços</td><td>Escala elástica; deploy independente; SaaS/PaaS/IaaS</td></tr>
+      </table>
+
+      <h3>Custo de adotar SOA</h3>
+      <p>Sommerville (2007) identifica duas razões pelas quais a adoção de SOA é custosa e nem sempre justificável:</p>
+      <div class="cards">
+        <div class="card"><h4>Mudança cara nos modelos existentes</h4><p>Transformar sistemas legados em serviços exige redesenhar interfaces, banco de dados e processos. O custo é alto e o risco de regressão é real.</p></div>
+        <div class="card"><h4>Sistemas que funcionam não precisam de SOA</h4><p>Se um sistema já atende ao negócio, forçar a migração para SOA pode não trazer ganho proporcional ao investimento. A decisão exige análise custo-benefício.</p></div>
+      </div>
+
+      <h3>ESB — o coração do SOA</h3>
+      <p>O <strong>Enterprise Service Bus (ESB)</strong> é o barramento central que interconecta todos os serviços. Ele funciona como um repositório intermediário inteligente: roteia mensagens, transforma formatos, aplica segurança (via XML Encryption) e monitora o tráfego.</p>
+      <p>Sem o ESB, cada serviço precisaria se conectar diretamente a todos os outros — criando uma malha de dependências insuportável (o problema de integração ponto-a-ponto). Com o ESB, todos falam com o barramento; o barramento fala com todos.</p>
+
+      <h3>Os três pilares técnicos do SOA</h3>
+      <div class="cards">
+        <div class="card"><h4>UDDI — Descoberta</h4><p><em>Universal Description, Discovery and Integration.</em> Registro centralizado onde serviços se publicam e consumidores os encontram. Funciona como um "catálogo de serviços" da organização.</p></div>
+        <div class="card"><h4>WSDL — Interface</h4><p><em>Web Services Description Language.</em> Descreve o contrato do serviço em XML: quais operações oferece, que parâmetros aceita, que tipo de dados retorna. É o "manual de uso" do serviço.</p></div>
+        <div class="card"><h4>SOAP — Comunicação</h4><p><em>Simple Object Access Protocol.</em> Protocolo de troca de mensagens baseado em XML. Garante que cliente e servidor se comuniquem de forma padronizada, independente de linguagem ou plataforma.</p></div>
+      </div>
+
+      <h3>Como tudo se encaixa — Localizar, Consolidar, Registrar</h3>
+      <p>O paradigma SOA funciona em três fases:</p>
+      <ol>
+        <li><strong>Registrar:</strong> o provedor publica o serviço no UDDI com o contrato WSDL.</li>
+        <li><strong>Localizar:</strong> o consumidor consulta o UDDI para encontrar o serviço que precisa.</li>
+        <li><strong>Consolidar (executar):</strong> o consumidor usa o WSDL para montar a chamada SOAP e se comunicar com o serviço via ESB.</li>
+      </ol>
+
+      <h3>BPEL — Orquestração de Processos</h3>
+      <p>O <strong>Business Process Execution Language (BPEL)</strong> permite descrever um processo de negócio como uma sequência de chamadas a serviços. Em vez de código procedural, o fluxo é definido em XML: "chame o serviço A, depois o B, se falhar chame o C". O BPM (Business Process Management) é a notação visual usada para modelar esses processos antes de codificá-los em BPEL.</p>
 
       <h3>Princípios SOA</h3>
       <div class="cards">
-        <div class="card"><h4>Baixo Acoplamento</h4><p>Serviços independentes — mudanças internas não afetam quem consome.</p></div>
-        <div class="card"><h4>Abstração</h4><p>O consumidor não precisa saber como o serviço funciona por dentro.</p></div>
-        <div class="card"><h4>Reutilização</h4><p>A mesma lógica de negócio exposta como serviço pode ser consumida por múltiplas aplicações.</p></div>
-        <div class="card"><h4>Composição</h4><p>Serviços simples se combinam para construir processos de negócio complexos.</p></div>
-        <div class="card"><h4>Autonomia</h4><p>Cada serviço controla sua própria lógica e não depende de outros para funcionar.</p></div>
-        <div class="card"><h4>Stateless</h4><p>Idealmente, serviços não guardam estado entre chamadas — torna o sistema mais previsível.</p></div>
+        <div class="card"><h4>Baixo Acoplamento</h4><p>Serviços independentes — a implementação interna pode mudar sem afetar os consumidores. Essa é a característica central: SOA opera no nível lógico de dependência mais baixo possível.</p></div>
+        <div class="card"><h4>Abstração</h4><p>O consumidor vê apenas a interface (WSDL), não a implementação. Java, .NET, Python — tanto faz.</p></div>
+        <div class="card"><h4>Reutilização</h4><p>A mesma lógica de negócio exposta como serviço pode ser consumida por múltiplas aplicações simultâneas.</p></div>
+        <div class="card"><h4>Composição</h4><p>Serviços simples se combinam via BPEL para construir processos de negócio complexos.</p></div>
+        <div class="card"><h4>Autonomia</h4><p>Cada serviço controla sua própria lógica, dados e ciclo de vida.</p></div>
+        <div class="card"><h4>Stateless</h4><p>Serviços não guardam estado entre chamadas — escala horizontal sem complicação.</p></div>
       </div>
 
-      <h3>SOA vs. Microsserviços — qual a diferença real?</h3>
-      <p>Microsserviços são frequentemente descritos como "SOA feito certo". As diferenças são principalmente de escopo e implantação:</p>
+      <h3>SOA vs. Microsserviços</h3>
+      <p>Microsserviços são frequentemente descritos como "SOA feito certo". A diferença principal está na granularidade e na forma de orquestração:</p>
       <table>
         <tr><th>Aspecto</th><th>SOA</th><th>Microsserviços</th></tr>
-        <tr><td>Granularidade dos serviços</td><td>Maiores, orientados a processo de negócio</td><td>Muito pequenos, focados em capacidade única</td></tr>
-        <tr><td>Comunicação</td><td>Via ESB centralizado</td><td>Direto via REST/gRPC ou mensageria</td></tr>
-        <tr><td>Compartilhamento de BD</td><td>Comum (banco compartilhado)</td><td>Cada serviço tem seu próprio banco</td></tr>
-        <tr><td>Deploy</td><td>Geralmente centralizado ou em grupos</td><td>Totalmente independente por serviço</td></tr>
-        <tr><td>Adoção típica</td><td>Integração corporativa, ERP, sistemas legados</td><td>Aplicações cloud-native, startups em escala</td></tr>
+        <tr><td>Granularidade</td><td>Serviços maiores, orientados a processo de negócio</td><td>Muito pequenos, focados em uma única capacidade</td></tr>
+        <tr><td>Comunicação</td><td>Via ESB centralizado (orquestração)</td><td>Direto via REST/gRPC ou mensageria (coreografia)</td></tr>
+        <tr><td>Banco de dados</td><td>Geralmente compartilhado</td><td>Cada serviço tem seu próprio banco</td></tr>
+        <tr><td>Deploy</td><td>Centralizado ou em grupos</td><td>Totalmente independente por serviço</td></tr>
+        <tr><td>Adoção típica</td><td>Integração corporativa, ERP, sistemas bancários</td><td>Aplicações cloud-native, escala horizontal</td></tr>
       </table>
 
-      <div class="callout">
-        <strong>Por que SOA ainda importa?</strong>
-        <p>A maioria das grandes empresas tem sistemas legados integrados via SOA (SAP, sistemas bancários, ERPs). Entender SOA é essencial para trabalhar com integração corporativa e modernização de sistemas.</p>
+      <div class="callout warning">
+        <strong>Conteúdo histórico — Práticas Modernas</strong>
+        <p>O material do curso reflete o estado da arte do início dos anos 2000. Algumas tecnologias ensinadas já foram <strong>abandonadas ou substituídas</strong>:</p>
+        <ul>
+          <li><strong>UDDI público foi encerrado em 2005–2006.</strong> Os registros públicos (IBM, Microsoft, SAP) fecharam as portas. Hoje, descoberta de serviços é feita via <em>API Gateway</em> (Kong, AWS API Gateway, Azure APIM) ou <em>service mesh</em> com service registry interno (Consul, Eureka, Kubernetes DNS).</li>
+          <li><strong>BPEL foi amplamente substituído por BPMN 2.0</strong> com engines modernas como <em>Camunda</em>, <em>Temporal.io</em> e <em>Apache Airflow</em>. São mais fáceis de manter, observar e versionar do que XML BPEL.</li>
+          <li><strong>SOAP/WSDL perdeu espaço para REST+OpenAPI</strong> como padrão de integração. Serviços de alta performance usam <em>gRPC</em> (Protocol Buffers + HTTP/2) no lugar de SOAP.</li>
+          <li><strong>O ESB centralizado virou antipadrão</strong> em arquiteturas cloud-native. O modelo atual é descentralizado — cada serviço publica sua API diretamente, e um API Gateway faz roteamento, autenticação e rate limiting.</li>
+        </ul>
+        <p>Entender SOA e BPEL é importante para trabalhar com sistemas legados corporativos. Para novos projetos, o caminho é REST+OpenAPI, Kubernetes + Consul, e BPMN 2.0.</p>
       </div>
+
+      <div class="callout tip">
+        <strong>Dicas para a Prova</strong>
+        <ul>
+          <li>O ESB é o "repositório interconectado" do SOA — ponto central que conecta todos os serviços.</li>
+          <li>WSDL = interface/contrato; UDDI = descoberta/registro; SOAP = protocolo de comunicação.</li>
+          <li>POST = CREATE, GET = READ, PUT = UPDATE, DELETE = DELETE (mapeamento REST-CRUD).</li>
+          <li>A principal característica do SOA que o diferencia de arquiteturas anteriores é o <strong>baixo nível lógico de dependência</strong> entre os componentes.</li>
+          <li>BPEL usa REST para modelar processos <em>antes</em> da inserção no barramento (integração via orquestração).</li>
+        </ul>
+      </div>
+
+      <p class="ref">Referências: SOMMERVILLE, I. <em>Engenharia de Software</em>, 8ª ed., 2007. MENDES, A. <em>Arquitetura de Software</em>, 2002.</p>
 
       <div class="section-nav">
         <a href="#" data-sec="ua4" class="prev">Projetar a Solução</a>
@@ -627,14 +678,54 @@
     <!-- ═══════════════════════════════════════════════════ UA6 -->
     <section id="ua6">
       <h2>UA6 — Projeto de Serviços Web</h2>
-      <p class="subtitle">Serviços Web permitem que sistemas se comuniquem via internet usando protocolos padronizados. Os dois estilos dominantes são SOAP (mais formal) e REST (mais simples e dominante hoje).</p>
+      <p class="subtitle">Projetar serviços web vai além de escolher SOAP ou REST. É preciso definir camadas, contratos, mecanismos de descoberta e de comunicação — e entender o que fica "por trás da interface" para garantir disponibilidade, segurança e escalabilidade.</p>
 
-      <h3>SOAP — Simple Object Access Protocol</h3>
-      <p>Protocolo formal baseado em XML com contrato rígido definido pelo WSDL (Web Services Description Language). Muito usado em sistemas corporativos e financeiros onde o contrato precisa ser exato e verificável.</p>
-      <pre><code><span class="cm">&lt;!-- Envelope SOAP: toda mensagem tem essa estrutura --&gt;</span>
-&lt;soap:Envelope xmlns:soap="..."&gt;
+      <h3>Arquitetura em 4 Camadas</h3>
+      <p>A estrutura clássica de uma aplicação de serviços web divide responsabilidades em quatro camadas:</p>
+      <table>
+        <tr><th>Camada</th><th>Responsabilidade</th><th>Tecnologias típicas</th></tr>
+        <tr><td><strong>Cliente</strong></td><td>Interface com o usuário; consome os serviços</td><td>Browser, app mobile, outro sistema</td></tr>
+        <tr><td><strong>Web (Container Web)</strong></td><td>Recebe requisições HTTP; delega para a camada de negócio</td><td>Servlets, JAX-RS, Spring MVC</td></tr>
+        <tr><td><strong>Negócio (EJB / Business Tier)</strong></td><td>Lógica de negócio, orquestração de serviços, transações</td><td>EJB, Spring, CDI</td></tr>
+        <tr><td><strong>EIS (Enterprise Information Systems)</strong></td><td>Acesso a dados, sistemas legados, bancos, filas</td><td>JPA, JDBC, JMS, conectores ERP</td></tr>
+      </table>
+
+      <h3>O que fica por trás da interface</h3>
+      <p>A interface exposta ao consumidor é apenas a ponta do iceberg. Por trás dela, a infraestrutura garante:</p>
+      <div class="cards">
+        <div class="card"><h4>Disponibilidade e Redundância</h4><p>Alta disponibilidade via balanceamento de carga e redundância de instâncias — o serviço continua mesmo se um nó cair.</p></div>
+        <div class="card"><h4>Escalabilidade</h4><p>Capacidade de atender mais requisições adicionando recursos horizontalmente (mais instâncias) ou verticalmente (mais hardware).</p></div>
+        <div class="card"><h4>Segurança</h4><p>Autenticação, autorização, criptografia de mensagens (WS-Security para SOAP; JWT/OAuth 2.0 para REST).</p></div>
+        <div class="card"><h4>Interoperabilidade</h4><p>Capacidade de se comunicar com sistemas escritos em qualquer linguagem via protocolo padronizado.</p></div>
+        <div class="card"><h4>Orquestração</h4><p>Coordenação de múltiplos serviços para compor um processo de negócio mais complexo.</p></div>
+        <div class="card"><h4>Gerenciamento e Monitoramento</h4><p>Rastreamento de chamadas, logs, métricas de performance, alertas de falha.</p></div>
+      </div>
+
+      <h3>HTTPServlet — o padrão de tratamento de requisições</h3>
+      <p>Na camada Web, cada requisição HTTP é tratada por um Servlet. O método a ser invocado depende do verbo HTTP:</p>
+      <table>
+        <tr><th>Método do Servlet</th><th>Verbo HTTP</th><th>Uso</th></tr>
+        <tr><td><code>doGet()</code></td><td>GET</td><td>Leitura, busca de recurso</td></tr>
+        <tr><td><code>doPost()</code></td><td>POST</td><td>Criação de recurso</td></tr>
+        <tr><td><code>doPut()</code></td><td>PUT</td><td>Atualização completa</td></tr>
+        <tr><td><code>doDelete()</code></td><td>DELETE</td><td>Remoção de recurso</td></tr>
+        <tr><td><code>doHead()</code></td><td>HEAD</td><td>Verifica existência sem retornar corpo</td></tr>
+        <tr><td><code>doOptions()</code></td><td>OPTIONS</td><td>Retorna métodos suportados (CORS preflight)</td></tr>
+        <tr><td><code>doTrace()</code></td><td>TRACE</td><td>Diagnóstico — raramente usado</td></tr>
+      </table>
+
+      <h3>SOAP — Estrutura da Mensagem</h3>
+      <p>Toda mensagem SOAP segue uma estrutura rígida de três elementos:</p>
+      <table>
+        <tr><th>Elemento</th><th>Obrigatório?</th><th>Função</th></tr>
+        <tr><td><strong>Envelope</strong></td><td>Sim</td><td>Elemento raiz; define namespaces e estilo de codificação. É o "container" da mensagem.</td></tr>
+        <tr><td><strong>Header</strong></td><td>Não</td><td>Informações adicionais (autenticação, transação, rastreamento). Quando presente, deve ser o primeiro filho do Envelope.</td></tr>
+        <tr><td><strong>Body</strong></td><td>Sim</td><td>Contém o payload real da mensagem (a operação e seus parâmetros). Pode incluir o elemento <code>Fault</code> para reportar erros.</td></tr>
+      </table>
+      <pre><code><span class="cm">&lt;!-- Estrutura completa de uma mensagem SOAP --&gt;</span>
+&lt;soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"&gt;
   &lt;soap:Header&gt;
-    &lt;auth:token&gt;abc123&lt;/auth:token&gt;
+    &lt;auth:token xmlns:auth="..."&gt;abc123&lt;/auth:token&gt;
   &lt;/soap:Header&gt;
   &lt;soap:Body&gt;
     &lt;calcularFrete&gt;
@@ -644,51 +735,95 @@
   &lt;/soap:Body&gt;
 &lt;/soap:Envelope&gt;</code></pre>
 
-      <h3>REST — Representational State Transfer</h3>
-      <p>Estilo arquitetural que usa o protocolo HTTP diretamente. Recursos são identificados por URLs e manipulados com os verbos HTTP. É o padrão de facto para APIs modernas.</p>
-
-      <h4>Os verbos HTTP e seu significado semântico</h4>
+      <h3>WSDL — Descrevendo o Contrato</h3>
+      <p>O WSDL (Web Services Description Language) é um documento XML que descreve completamente um serviço SOAP. Seus elementos principais:</p>
       <table>
-        <tr><th>Verbo</th><th>Operação CRUD</th><th>Exemplo</th><th>Idempotente?</th></tr>
-        <tr><td>GET</td><td>Read (Ler)</td><td><code>GET /pedidos/42</code></td><td>Sim</td></tr>
-        <tr><td>POST</td><td>Create (Criar)</td><td><code>POST /pedidos</code></td><td>Não</td></tr>
-        <tr><td>PUT</td><td>Update total</td><td><code>PUT /pedidos/42</code></td><td>Sim</td></tr>
-        <tr><td>PATCH</td><td>Update parcial</td><td><code>PATCH /pedidos/42</code></td><td>Não</td></tr>
-        <tr><td>DELETE</td><td>Delete (Remover)</td><td><code>DELETE /pedidos/42</code></td><td>Sim</td></tr>
+        <tr><th>Elemento</th><th>Parte</th><th>O que descreve</th></tr>
+        <tr><td><code>&lt;types&gt;</code></td><td>Abstrata</td><td>Tipos de dados usados nas mensagens (schemas XML)</td></tr>
+        <tr><td><code>&lt;message&gt;</code></td><td>Abstrata</td><td>Parâmetros de entrada e saída de cada operação</td></tr>
+        <tr><td><code>&lt;portType&gt;</code></td><td>Abstrata</td><td>Conjunto de operações disponíveis (como uma interface)</td></tr>
+        <tr><td><code>&lt;binding&gt;</code></td><td>Concreta</td><td>Protocolo e formato de dados para as operações</td></tr>
+        <tr><td><code>&lt;operation&gt;</code></td><td>Concreta</td><td>Define entrada, saída e falhas de cada operação</td></tr>
+        <tr><td><code>&lt;definitions&gt;</code></td><td>Raiz</td><td>Elemento raiz; contém namespaces e todos os demais</td></tr>
       </table>
 
-      <h4>Códigos de Status HTTP importantes</h4>
+      <h3>UDDI — As Três Páginas do Registro</h3>
+      <p>O UDDI organiza as informações dos serviços em três categorias, analogia às antigas listas telefônicas:</p>
+      <div class="cards">
+        <div class="card"><h4>Páginas Brancas</h4><p>Informações gerais do provedor: nome da empresa, endereço, contatos, identificadores. "Quem é esse fornecedor?"</p></div>
+        <div class="card"><h4>Páginas Verdes</h4><p>Informações técnicas: endpoints de acesso, interfaces (WSDL), protocolos suportados. "Como acesso o serviço?"</p></div>
+        <div class="card"><h4>Páginas Amarelas</h4><p>Categorização por taxonomia de negócio (NAICS, UNSPSC). "Que tipo de serviço é esse?"</p></div>
+      </div>
+
+      <h3>Paradigma Localizar–Vincular–Executar</h3>
+      <p>O fluxo completo de uso de um serviço web SOAP com UDDI:</p>
+      <ol>
+        <li><strong>Publicar:</strong> o provedor registra o serviço no UDDI com o link para o WSDL.</li>
+        <li><strong>Localizar:</strong> o consumidor consulta o UDDI e encontra o serviço adequado.</li>
+        <li><strong>Vincular:</strong> o consumidor lê o WSDL e gera um <em>proxy</em> (stub) para invocar o serviço.</li>
+        <li><strong>Executar:</strong> o consumidor invoca o serviço via SOAP (RPC encapsulado em XML sobre HTTP).</li>
+      </ol>
+
+      <h3>REST — Representational State Transfer</h3>
+      <p>Proposto por Roy Fielding em sua dissertação (2000) como estilo arquitetural baseado nos princípios do HTTP. É stateless: cada requisição carrega tudo que o servidor precisa — sem sessão, sem contexto salvo no servidor. O uso de cache reduz latência e carga.</p>
+
+      <h4>Verbos HTTP — mapeamento CRUD</h4>
+      <table>
+        <tr><th>Verbo</th><th>Operação CRUD</th><th>Exemplo</th><th>Idempotente?</th></tr>
+        <tr><td>GET</td><td>Read</td><td><code>GET /pedidos/42</code></td><td>Sim</td></tr>
+        <tr><td>POST</td><td>Create</td><td><code>POST /pedidos</code></td><td>Não</td></tr>
+        <tr><td>PUT</td><td>Update (total)</td><td><code>PUT /pedidos/42</code></td><td>Sim</td></tr>
+        <tr><td>PATCH</td><td>Update (parcial)</td><td><code>PATCH /pedidos/42</code></td><td>Não</td></tr>
+        <tr><td>DELETE</td><td>Delete</td><td><code>DELETE /pedidos/42</code></td><td>Sim</td></tr>
+      </table>
+
+      <h4>Códigos de Status HTTP</h4>
       <table>
         <tr><th>Código</th><th>Significado</th></tr>
         <tr><td>200 OK</td><td>Sucesso</td></tr>
-        <tr><td>201 Created</td><td>Recurso criado (resposta a POST)</td></tr>
-        <tr><td>400 Bad Request</td><td>Requisição inválida (erro do cliente)</td></tr>
+        <tr><td>201 Created</td><td>Recurso criado (resposta a POST bem-sucedido)</td></tr>
+        <tr><td>400 Bad Request</td><td>Requisição inválida — erro do cliente</td></tr>
         <tr><td>401 Unauthorized</td><td>Não autenticado</td></tr>
         <tr><td>403 Forbidden</td><td>Autenticado mas sem permissão</td></tr>
         <tr><td>404 Not Found</td><td>Recurso não existe</td></tr>
         <tr><td>500 Internal Server Error</td><td>Erro no servidor</td></tr>
       </table>
 
-      <h3>JSON — o formato padrão REST</h3>
-      <pre><code>{
-  <span class="str">"id"</span>: <span class="num">42</span>,
-  <span class="str">"status"</span>: <span class="str">"pendente"</span>,
-  <span class="str">"total"</span>: <span class="num">189.90</span>,
-  <span class="str">"itens"</span>: [
-    { <span class="str">"produto"</span>: <span class="str">"Notebook"</span>, <span class="str">"qtd"</span>: <span class="num">1</span>, <span class="str">"preco"</span>: <span class="num">189.90</span> }
-  ],
-  <span class="str">"cliente"</span>: { <span class="str">"id"</span>: <span class="num">7</span>, <span class="str">"nome"</span>: <span class="str">"Marcus"</span> }
-}</code></pre>
-
-      <h3>SOAP vs REST — resumo executivo</h3>
+      <h3>Quando usar SOAP vs REST</h3>
       <table>
         <tr><th>Aspecto</th><th>SOAP</th><th>REST</th></tr>
-        <tr><td>Protocolo</td><td>Próprio (sobre HTTP/SMTP/outros)</td><td>HTTP nativo</td></tr>
-        <tr><td>Formato</td><td>XML obrigatório</td><td>JSON, XML, CSV, qualquer um</td></tr>
-        <tr><td>Contrato</td><td>WSDL (obrigatório e rígido)</td><td>OpenAPI/Swagger (opcional)</td></tr>
-        <tr><td>Segurança</td><td>WS-Security (robusto)</td><td>JWT, OAuth 2.0</td></tr>
-        <tr><td>Uso típico</td><td>Bancos, ERPs, sistemas legados</td><td>APIs móveis, SPAs, microserviços</td></tr>
+        <tr><td>Protocolo</td><td>Próprio (sobre HTTP/SMTP)</td><td>HTTP nativo</td></tr>
+        <tr><td>Formato</td><td>XML obrigatório</td><td>JSON, XML, qualquer formato</td></tr>
+        <tr><td>Contrato</td><td>WSDL (obrigatório)</td><td>OpenAPI/Swagger (recomendado)</td></tr>
+        <tr><td>Segurança</td><td>WS-Security (robusto, verbose)</td><td>JWT, OAuth 2.0</td></tr>
+        <tr><td>Complexidade</td><td>Alta — ferramentas de geração de código obrigatórias</td><td>Baixa — qualquer cliente HTTP funciona</td></tr>
+        <tr><td>Uso típico</td><td>Sistemas bancários, ERPs, integrações corporativas legadas</td><td>APIs mobile, SPAs, microsserviços, cloud</td></tr>
       </table>
+
+      <div class="callout warning">
+        <strong>Conteúdo histórico — Práticas Modernas</strong>
+        <p>O material do curso tem foco em tecnologias Java/JEE do início dos anos 2000. O cenário atual é substancialmente diferente:</p>
+        <ul>
+          <li><strong>UDDI foi abandonado.</strong> Os grandes registros públicos fecharam em 2005–2006. Hoje, a descoberta de serviços usa <em>API Gateway</em> (Kong, AWS API Gateway) com catálogos internos como <em>Backstage</em> (Spotify), ou <em>service mesh</em> com Consul/Kubernetes DNS.</li>
+          <li><strong>WSDL/SOAP perderam a hegemonia para REST+OpenAPI.</strong> A especificação OpenAPI 3.x substituiu o WSDL como contrato de API. Ferramentas como Swagger UI e Redoc geram documentação navegável automaticamente.</li>
+          <li><strong>gRPC como alternativa de alta performance.</strong> Para comunicação interna entre microsserviços onde performance importa, o gRPC (Protocol Buffers + HTTP/2) oferece serialização binária muito mais eficiente que SOAP/XML.</li>
+          <li><strong>Java EE virou Jakarta EE.</strong> O JEE foi doado à Eclipse Foundation e renomeado Jakarta EE. Na prática, Spring Boot domina o mercado; a maioria dos novos projetos não usa EJB.</li>
+          <li><strong>Microsserviços + Kubernetes substituem o ESB.</strong> Cada serviço expõe uma API REST; o API Gateway faz roteamento, autenticação e rate limiting. O sidecar pattern (Envoy/Istio) cuida de observabilidade e segurança.</li>
+        </ul>
+      </div>
+
+      <div class="callout tip">
+        <strong>Dicas para a Prova</strong>
+        <ul>
+          <li>A arquitetura de serviços web tem <strong>4 camadas</strong>: cliente → web (servlets) → negócio (EJB) → EIS.</li>
+          <li>Páginas brancas = info geral; páginas verdes = info técnica de acesso; páginas amarelas = categorização por taxonomia.</li>
+          <li>Envelope SOAP = apresentação XML; Header = inicializa informações adicionais; Body = dados encapsulados (payload).</li>
+          <li>O consumidor precisa do <strong>UDDI</strong> (para encontrar) e do <strong>WSDL</strong> (para saber como usar) — os dois juntos permitem a integração.</li>
+          <li>SOAP sobre HTTP é a base do RPC via serviços web — XML encapsula a chamada de procedimento remoto trafegando sobre HTTP.</li>
+        </ul>
+      </div>
+
+      <p class="ref">Referências: SOMMERVILLE, I. <em>Engenharia de Software</em>, 8ª ed., 2007. MENDES, A. <em>Arquitetura de Software</em>, 2002. FIELDING, R. <em>Architectural Styles and the Design of Network-based Software Architectures</em>, dissertação de doutorado, 2000.</p>
 
       <div class="section-nav">
         <a href="#" data-sec="ua5" class="prev">Arquitetura SOA</a>
@@ -698,42 +833,71 @@
 
     <!-- ═══════════════════════════════════════════════════ UA7 -->
     <section id="ua7">
-      <h2>UA7 — Modelo de Análise de Software</h2>
-      <p class="subtitle">O modelo de análise é a representação técnica do sistema que emerge dos requisitos. Ele serve como linguagem comum entre analistas, desenvolvedores e clientes — transformando linguagem natural em estruturas formais.</p>
+      <h2>UA7 — Modelo de Análise Estruturada</h2>
+      <p class="subtitle">A análise estruturada é o método clássico de modelagem de sistemas: trata dados e processos como entidades separadas, representando o fluxo de informações de forma gráfica. É a base histórica que originou técnicas modernas de análise.</p>
 
-      <h3>Por que modelar?</h3>
-      <p>Imagine construir uma casa sem planta. Modelagem de software segue o mesmo princípio: sem modelos, cada desenvolvedor interpreta os requisitos de forma diferente. O resultado é um sistema incoerente.</p>
-      <ul>
-        <li><strong>Clareza:</strong> torna explícito o que está implícito nos requisitos.</li>
-        <li><strong>Comunicação:</strong> cria um vocabulário compartilhado na equipe.</li>
-        <li><strong>Validação:</strong> é mais fácil encontrar inconsistências no modelo do que no código.</li>
-        <li><strong>Documentação viva:</strong> o modelo é uma documentação que pode evoluir junto com o sistema.</li>
-      </ul>
+      <h3>Contexto histórico</h3>
+      <p>Até os anos 1970, desenvolver software era quase artesanal — sem metodologia, sem documentação padronizada. A análise estruturada emergiu nessa época como a primeira tentativa sistemática de modelar o que um sistema faz antes de codificá-lo. O princípio central: construir um <strong>modelo lógico</strong> (o que o sistema deve fazer) separado do <strong>modelo físico</strong> (como será implementado).</p>
+      <p>As três notações mais usadas foram criadas por DeMarco (1978), Gane e Sarson (1979) e Yourdon e Constantine (1985) — todas equivalentes em expressividade.</p>
 
-      <h3>Tipos de Modelos</h3>
-      <div class="cards">
-        <div class="card"><h4>Modelo Funcional</h4><p><strong>O que</strong> o sistema faz. Casos de Uso, Diagramas de Atividades, User Stories.</p></div>
-        <div class="card"><h4>Modelo Estrutural</h4><p><strong>Como</strong> o sistema é organizado. Diagrama de Classes, Componentes, Pacotes.</p></div>
-        <div class="card"><h4>Modelo Comportamental</h4><p><strong>Como</strong> o sistema age ao longo do tempo. Sequência, Estados, Colaboração.</p></div>
-      </div>
-
-      <h3>UML — Unified Modeling Language</h3>
-      <p>Linguagem visual padronizada pela OMG para modelar sistemas orientados a objetos. Não é uma metodologia — é uma notação. Você usa os diagramas que fazem sentido para o seu contexto.</p>
+      <h3>DFD — Diagrama de Fluxo de Dados</h3>
+      <p>A principal ferramenta da análise estruturada. Representa graficamente como os dados entram no sistema, por quais processos passam, onde são armazenados e como saem. Cada refinamento sucessivo adiciona mais detalhes ao DFD.</p>
       <table>
-        <tr><th>Diagrama</th><th>Tipo</th><th>Pergunta que responde</th></tr>
-        <tr><td>Classes</td><td>Estrutural</td><td>Quais classes existem e como se relacionam?</td></tr>
-        <tr><td>Casos de Uso</td><td>Comportamental</td><td>Quem usa o sistema e para quê?</td></tr>
-        <tr><td>Sequência</td><td>Comportamental</td><td>Qual a ordem das mensagens em um cenário?</td></tr>
-        <tr><td>Atividades</td><td>Comportamental</td><td>Qual o fluxo de um processo ou algoritmo?</td></tr>
-        <tr><td>Componentes</td><td>Estrutural</td><td>Quais são os módulos físicos e suas dependências?</td></tr>
-        <tr><td>Estados</td><td>Comportamental</td><td>Por quais estados um objeto pode passar?</td></tr>
-        <tr><td>Implantação</td><td>Estrutural</td><td>Como o software é distribuído no hardware?</td></tr>
+        <tr><th>Componente</th><th>Representação</th><th>Função</th><th>Regras principais</th></tr>
+        <tr><td><strong>Bolha de Processo</strong></td><td>Retângulo com cantos arredondados</td><td>Transforma dados (ex.: calcular salário, emitir nota)</td><td>Nome deve ter verbo + complemento; deve ser numerado</td></tr>
+        <tr><td><strong>Fluxo de Dados</strong></td><td>Seta com nome</td><td>Dados trafegando entre processos ou com o mundo externo</td><td>Todo fluxo tem nome; nomes não se repetem; não tem ação</td></tr>
+        <tr><td><strong>Entidade Externa</strong></td><td>Quadrado duplo</td><td>Fonte ou destino de dados fora do sistema (usuário, outro sistema)</td><td>Não se comunica com outra entidade; não acessa depósito</td></tr>
+        <tr><td><strong>Depósito de Dados</strong></td><td>Retângulo com lado aberto</td><td>Local de armazenamento (arquivo, banco, tabela)</td><td>Não pode ter só entrada ou só saída</td></tr>
       </table>
 
-      <div class="callout green">
-        <strong>UML não precisa ser formal para ser útil</strong>
-        <p>Um diagrama rabiscado no papel durante uma reunião que resolve uma dúvida da equipe é UML bem aplicada. O valor está na comunicação, não na perfeição da notação.</p>
+      <h4>Boas práticas para criar um DFD</h4>
+      <ul>
+        <li>Escolha nomes significativos para processos, fluxos, depósitos e terminadores.</li>
+        <li>Numere os processos para rastreabilidade.</li>
+        <li>Mantenha o DFD visualmente organizado — evite cruzamentos de setas.</li>
+        <li>Não deixe o DFD complexo demais: decomponha em níveis (DFD de contexto → DFD nível 0 → nível 1...).</li>
+        <li>Verifique a consistência entre os níveis do DFD.</li>
+      </ul>
+
+      <h3>DD — Dicionário de Dados</h3>
+      <p>O dicionário de dados (DD) complementa o DFD: lista e descreve todos os dados do sistema. É essencial para eliminar ambiguidade — o que exatamente é o campo "CPF"? Com ou sem pontuação? Obrigatório? O DD responde essas questões.</p>
+      <p>Cada entrada contém: identificador, significado, conteúdo (para dados compostos), valores permitidos e unidades (para dados elementares), chave primária (para depósitos).</p>
+      <h4>Notação do DD</h4>
+      <table>
+        <tr><th>Símbolo</th><th>Significado</th><th>Exemplo</th></tr>
+        <tr><td><code>=</code></td><td>É constituído por / definido por</td><td><code>pedido = cliente + itens + data</code></td></tr>
+        <tr><td><code>+</code></td><td>E (concatenação)</td><td><code>nome = primeiro + último</code></td></tr>
+        <tr><td><code>( )</code></td><td>Componente opcional</td><td><code>endereço = rua + (complemento) + cidade</code></td></tr>
+        <tr><td><code>[ | ]</code></td><td>Alternativas (ou)</td><td><code>tipo = [físico | jurídico]</code></td></tr>
+        <tr><td><code>{ }</code></td><td>Componentes que se repetem (0 ou mais vezes)</td><td><code>pedido = {item}</code></td></tr>
+        <tr><td><code>* *</code></td><td>Comentário</td><td><code>* máx. 2 dígitos *</code></td></tr>
+        <tr><td><code>@</code></td><td>Chave primária do depósito</td><td><code>@id_usuario</code></td></tr>
+      </table>
+
+      <h3>Vantagens e Limitações</h3>
+      <table>
+        <tr><th></th><th>Análise Estruturada</th></tr>
+        <tr><td><strong>Vantagens</strong></td><td>DFD oferece visão clara e acessível do sistema; facilita comunicação com o cliente; base para outras metodologias; simples de aprender</td></tr>
+        <tr><td><strong>Limitações</strong></td><td>Não escala bem para sistemas grandes (5M+ linhas de código); não separa bem dados de comportamento; manutenção pós-entrega historicamente problemática; não modela bem sistemas OO modernos</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>Por que ainda aprender análise estruturada?</strong>
+        <p>Muitos sistemas legados corporativos — bancários, governamentais, industriais — foram projetados com DFD e DD. Entender essa notação é essencial para manutenção e modernização desses sistemas. Além disso, o DFD ainda é uma boa ferramenta para esboçar a visão macro de um sistema antes de detalhar os modelos OO.</p>
       </div>
+
+      <div class="callout tip">
+        <strong>Dicas para a Prova</strong>
+        <ul>
+          <li>DFD = diagrama que mostra relações entre dados, processos e o limite do sistema.</li>
+          <li>Um processo no DFD representa uma <strong>função</strong> (bolha de processo = elemento ativo que transforma dados).</li>
+          <li>A principal vantagem do DFD: permite ter uma ideia mais clara do sistema proposto.</li>
+          <li>A principal limitação da análise estruturada: não consegue lidar com sistemas de grande porte e tem problemas de manutenção pós-entrega.</li>
+          <li>No DD, <code>{ }</code> = repetição (zero ou mais vezes); <code>( )</code> = opcional; <code>[ | ]</code> = alternativas.</li>
+        </ul>
+      </div>
+
+      <p class="ref">Referências: SCHACH, S.R. <em>Engenharia de Software: os paradigmas clássicos e orientado a objetos</em>, 7ª ed., 2010. DEMARCO, T. <em>Structured Analysis and System Specification</em>, 1978. GANE, C.P.; SARSON, T. <em>Análise Estruturada de Sistemas</em>, 1985.</p>
 
       <div class="section-nav">
         <a href="#" data-sec="ua6" class="prev">Serviços Web</a>
@@ -743,46 +907,100 @@
 
     <!-- ═══════════════════════════════════════════════════ UA8 -->
     <section id="ua8">
-      <h2>UA8 — Modelo de Análise Orientado a Objetos</h2>
-      <p class="subtitle">A análise OO modela o sistema em termos de objetos que combinam dados e comportamentos. É a base do design moderno de software e da UML.</p>
+      <h2>UA8 — Modelo de Análise Orientada a Objetos</h2>
+      <p class="subtitle">A análise OO surgiu para superar as limitações da análise estruturada: ao invés de separar dados e processos, ela modela o sistema como uma coleção de objetos que possuem características (atributos) e comportamentos (operações). É o paradigma dominante no desenvolvimento moderno.</p>
+
+      <h3>Por que OO superou a análise estruturada?</h3>
+      <p>A análise estruturada era orientada a operações <em>ou</em> a dados — nunca aos dois ao mesmo tempo. A OO resolve isso encapsulando dados e operações no mesmo objeto. Sistemas complexos se tornam mais fáceis de criar, manter e evoluir porque cada objeto é responsável por si mesmo.</p>
+      <p>A OOA (Object-Oriented Analysis) é uma técnica semiformal que extrai classes a partir dos requisitos. Casos de uso e classes são a base de qualquer produto OO. (Schach, 2010; Pressman &amp; Maxim, 2016)</p>
 
       <h3>Os quatro pilares da OO</h3>
       <div class="cards">
-        <div class="card"><h4>Encapsulamento</h4><p>Dados e comportamento ficam juntos. Detalhes internos ficam ocultos — só a interface é visível. Protege a integridade do objeto.</p></div>
-        <div class="card"><h4>Herança</h4><p>Classes filhas reutilizam e estendem comportamentos da classe pai. Elimina duplicação. Cuidado: herança cria acoplamento forte.</p></div>
-        <div class="card"><h4>Polimorfismo</h4><p>Um método se comporta diferente dependendo do objeto. <code>animal.falar()</code> retorna "Au!" para Cachorro e "Miau!" para Gato.</p></div>
-        <div class="card"><h4>Abstração</h4><p>Modelar apenas o que é relevante para o contexto. Um <code>Carro</code> para um sistema de vendas tem atributos diferentes de um para um sistema de manutenção.</p></div>
+        <div class="card"><h4>Encapsulamento</h4><p>Dados e comportamento ficam juntos no objeto. Detalhes internos ficam ocultos — só a interface é visível. Protege a integridade e reduz o acoplamento.</p></div>
+        <div class="card"><h4>Herança</h4><p>Classes filhas reutilizam e estendem atributos e operações da superclasse. Alterações na superclasse se propagam automaticamente. Cuidado: herança cria acoplamento forte.</p></div>
+        <div class="card"><h4>Polimorfismo</h4><p>O mesmo método se comporta diferente dependendo do objeto. <code>animal.falar()</code> retorna "Au!" para Cachorro e "Miau!" para Gato — sem o cliente saber qual é qual.</p></div>
+        <div class="card"><h4>Abstração</h4><p>Modelar apenas o que é relevante para o contexto. Um <code>Carro</code> para sistema de vendas tem atributos diferentes de um para sistema de manutenção.</p></div>
       </div>
 
-      <h3>Técnica para identificar classes: substantivos e verbos</h3>
-      <p>Leia o enunciado do problema. Sublinhe os <strong>substantivos</strong> — candidatos a classes e atributos. Sublinhe os <strong>verbos</strong> — candidatos a métodos e relacionamentos.</p>
+      <h3>UML — A linguagem de modelagem da OO</h3>
+      <p>A UML (Unified Modeling Language) é a notação diagramática padrão para modelar sistemas OO. Não é uma metodologia — é uma linguagem. Criada por Booch, Rumbaugh e Jacobson ("os três amigos") na Rational Corporation em 1994, hoje é padronizada pela OMG. Fowler (2003) define três modos de usar UML:</p>
+      <div class="cards">
+        <div class="card"><h4>UML como Rascunho</h4><p>Diagramas informais e incompletos, frequentemente à mão no quadro branco. Objetivo: explorar o espaço do problema ou da solução rapidamente. Uso mais comum no dia a dia.</p></div>
+        <div class="card"><h4>UML como Planta</h4><p>Diagramas relativamente detalhados, usados antes ou depois do código. Ajuda a entender a estrutura global; podem guiar a geração de código (manual ou automática).</p></div>
+        <div class="card"><h4>UML como Linguagem</h4><p>Especificação executável completa — o código é gerado automaticamente a partir dos diagramas. Ainda experimental; raramente usado na prática.</p></div>
+      </div>
+
+      <h3>Diagrama de Classes</h3>
+      <p>O diagrama central da análise OO. Cada classe é representada por um retângulo com três compartimentos empilhados:</p>
+      <ol>
+        <li><strong>Compartimento superior:</strong> nome da classe</li>
+        <li><strong>Compartimento do meio:</strong> atributos (campos de dados)</li>
+        <li><strong>Compartimento inferior:</strong> operações (métodos)</li>
+      </ol>
+      <p>Os dois compartimentos inferiores são opcionais quando o contexto é claro.</p>
+
+      <h4>Tipos de relacionamento</h4>
+      <table>
+        <tr><th>Tipo</th><th>Semântica</th><th>Exemplo</th></tr>
+        <tr><td><strong>Associação bidirecional</strong></td><td>Ambas as classes se conhecem mutuamente</td><td>Cliente ↔ Pedido</td></tr>
+        <tr><td><strong>Associação unidirecional</strong></td><td>Apenas uma classe conhece a outra</td><td>Pedido → ItemPedido</td></tr>
+        <tr><td><strong>Herança (Generalização)</strong></td><td>"É um" — seta aberta apontando para superclasse</td><td>PessoaFísica → Cliente</td></tr>
+        <tr><td><strong>Agregação</strong></td><td>"Tem um" — parte pode existir sem o todo (losango vazio)</td><td>Departamento ◇ Funcionário</td></tr>
+        <tr><td><strong>Composição</strong></td><td>"Tem um" — parte depende do todo (losango cheio)</td><td>Pedido ◆ ItemPedido</td></tr>
+        <tr><td><strong>Realização</strong></td><td>Implementa uma interface (seta tracejada)</td><td>PayPal ⇢ IPagamento</td></tr>
+      </table>
 
       <div class="callout green">
-        <strong>Exemplo prático</strong>
-        <p>"Um <u>cliente</u> realiza um <u>pedido</u> que contém vários <u>produtos</u>. Cada produto tem <u>nome</u>, <u>preço</u> e <u>estoque</u>. O pedido registra a <u>data</u> e o <u>status</u>."<br><br>
+        <strong>Identificando classes: técnica dos substantivos e verbos</strong>
+        <p>Leia o enunciado do problema. Sublinhe <strong>substantivos</strong> → candidatos a classes e atributos. Sublinhe <strong>verbos</strong> → candidatos a métodos e relacionamentos.<br><br>
+        Ex.: "Um <u>cliente</u> realiza um <u>pedido</u> que contém vários <u>produtos</u>. Cada produto tem <u>nome</u>, <u>preço</u> e <u>estoque</u>."<br>
         → Classes: <code>Cliente</code>, <code>Pedido</code>, <code>Produto</code><br>
-        → Atributos: nome, preço, estoque (Produto); data, status (Pedido)<br>
+        → Atributos de Produto: nome, preço, estoque<br>
         → Relacionamentos: Cliente 1—N Pedido; Pedido N—N Produto</p>
       </div>
 
-      <h3>Tipos de relacionamento em UML</h3>
+      <h3>Diagrama de Casos de Uso</h3>
+      <p>Cockburn (2001) define: "um caso de uso captura um contrato que descreve o comportamento do sistema sob várias condições, à medida que o sistema responde a uma solicitação de um de seus envolvidos". Basicamente, narra uma jornada de como um <strong>ator</strong> interage com o sistema.</p>
+      <p>Perguntas que um caso de uso deve responder:</p>
+      <ul>
+        <li>Quais são as metas do ator? Que precondições devem existir?</li>
+        <li>Que tarefas principais o ator realiza? Quais exceções podem ocorrer?</li>
+        <li>Que informações o sistema fornece, recebe ou modifica para o ator?</li>
+      </ul>
+
+      <h3>Os 5 diagramas essenciais da UML</h3>
+      <p>Uma pesquisa de 2007 (Erickson &amp; Siau apud Sommerville, 2011) mostrou que a maioria dos usuários de UML acredita que <strong>cinco diagramas</strong> representam a essência de um sistema:</p>
       <table>
-        <tr><th>Tipo</th><th>Notação</th><th>Semântica</th><th>Exemplo</th></tr>
-        <tr><td>Associação</td><td>——</td><td>Objetos se conhecem</td><td>Cliente conhece Pedido</td></tr>
-        <tr><td>Agregação</td><td>——◇</td><td>"Tem um" (parte sobrevive sem o todo)</td><td>Departamento ◇ Funcionário</td></tr>
-        <tr><td>Composição</td><td>——◆</td><td>"Tem um" (parte depende do todo)</td><td>Pedido ◆ ItemPedido</td></tr>
-        <tr><td>Herança</td><td>——▷</td><td>"É um" (generalização/especialização)</td><td>PessoaFísica ▷ Cliente</td></tr>
-        <tr><td>Realização</td><td>- - ▷</td><td>"Implementa" uma interface</td><td>PayPal - - ▷ Pagamento</td></tr>
-        <tr><td>Dependência</td><td>- - →</td><td>Usa temporariamente</td><td>Relatório - - → Formatador</td></tr>
+        <tr><th>Diagrama</th><th>O que responde</th></tr>
+        <tr><td><strong>Atividades</strong></td><td>Atividades envolvidas em um processo ou no processamento de dados</td></tr>
+        <tr><td><strong>Casos de Uso</strong></td><td>Interações entre o sistema e seu ambiente (atores)</td></tr>
+        <tr><td><strong>Sequência</strong></td><td>Interações entre atores e sistema, e entre componentes do sistema</td></tr>
+        <tr><td><strong>Classes</strong></td><td>Estrutura estática — classes, atributos, operações e relacionamentos</td></tr>
+        <tr><td><strong>Estados</strong></td><td>Como o sistema reage a eventos internos e externos</td></tr>
       </table>
 
-      <div class="callout">
-        <strong>Agregação vs. Composição — a diferença prática</strong>
-        <p>Se você deletar o "todo", a "parte" ainda existe? Sim → Agregação. Não → Composição. Deletar um Pedido apaga os ItemPedido? Sim → Composição. Transferir um Funcionário para outro Departamento faz sentido? Sim → Agregação.</p>
+      <h3>Vantagens e Limitações da Análise OO</h3>
+      <table>
+        <tr><th></th><th>Análise Orientada a Objetos</th></tr>
+        <tr><td><strong>Vantagens</strong></td><td>Modela o mundo real de forma natural; facilita criação de sistemas complexos; fácil extensão e manutenção; UML em constante evolução; melhor comunicação com o cliente</td></tr>
+        <tr><td><strong>Limitações</strong></td><td>Exige tempo para criar toda a documentação de diagramas; só deve implementar após especificação completa; a equipe precisa dominar as notações UML e as ferramentas</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>Dicas para a Prova</strong>
+        <ul>
+          <li>A OOA é baseada em <strong>objetos, atributos e classes</strong> — não em hardware, estruturas de dados ou variáveis e funções.</li>
+          <li>Para garantir facilidade de criação e manutenção, o engenheiro deve fazer uma <strong>modelagem clara e bem organizada</strong>.</li>
+          <li>Ao identificar classes em um problema: Loja, Produto, Vendedor, Venda e Estoque são classes — não ações como "inserir vendedores" ou atributos como "cor e preço".</li>
+          <li>Uma <strong>limitação</strong> do modelo OO: não é mais fácil de implementar — exige familiaridade com notações e ferramentas.</li>
+          <li>O objetivo do <strong>diagrama de objetos</strong> é mostrar os objetos instanciados das classes (não mostrar as classes em si).</li>
+        </ul>
       </div>
 
+      <p class="ref">Referências: SCHACH, S.R. <em>Engenharia de Software</em>, 7ª ed., 2010. PRESSMAN, R.S.; MAXIM, B.R. <em>Engenharia de Software</em>, 8ª ed., 2016. LARMAN, C. <em>Utilizando UML e Padrões</em>, 3ª ed., 2007. SOMMERVILLE, I. <em>Engenharia de Software</em>, 9ª ed., 2011.</p>
+
       <div class="section-nav">
-        <a href="#" data-sec="ua7" class="prev">Modelo de Análise</a>
+        <a href="#" data-sec="ua7" class="prev">Análise Estruturada</a>
         <a href="#" data-sec="ua9" class="next">Prototipação</a>
       </div>
     </section>
@@ -790,37 +1008,63 @@
     <!-- ═══════════════════════════════════════════════════ UA9 -->
     <section id="ua9">
       <h2>UA9 — Prototipação e Concepção</h2>
-      <p class="subtitle">Um protótipo é uma representação parcial do sistema criada para aprender — validar ideias, descobrir problemas de usabilidade e alinhar expectativas antes de investir em desenvolvimento real.</p>
-
-      <h3>Por que prototipar?</h3>
-      <p>O custo de corrigir um erro cresce exponencialmente ao longo do projeto. Uma interface mal projetada descoberta em um protótipo de papel custa minutos para corrigir. Descoberta em produção, custa semanas de retrabalho e pode destruir a experiência do usuário.</p>
+      <p class="subtitle">Um protótipo é qualquer modelo que representa partes de um design de interface para avaliação — pode ser um esboço em papel, um vídeo simulando o artefato, ou até um modelo em madeira. O importante é prototipar para que a entrega final seja alinhada às necessidades do usuário.</p>
 
       <div class="slide-gallery">
-        <span class="gallery-label">Slides — Do Esboço à Realidade</span>
+        <span class="gallery-label">Slides — Prototipação</span>
         <div class="slides-grid">
           <figure class="slide-item"><img src="../assets/img/slides/btr_01.png" alt="Do Esboço à Realidade"><figcaption>Do Esboço à Realidade</figcaption></figure>
           <figure class="slide-item"><img src="../assets/img/slides/btr_02.png" alt="Ponte de comunicação"><figcaption>Protótipo como ponte de comunicação</figcaption></figure>
-          <figure class="slide-item"><img src="../assets/img/slides/btr_03.png" alt="Circuito de Prototipação"><figcaption>O motor do design: ciclo infinito</figcaption></figure>
+          <figure class="slide-item"><img src="../assets/img/slides/btr_03.png" alt="Circuito de Prototipação"><figcaption>O motor do design: ciclo iterativo</figcaption></figure>
           <figure class="slide-item"><img src="../assets/img/slides/btr_11.png" alt="ROI da Prototipação"><figcaption>O verdadeiro ROI da Prototipação</figcaption></figure>
         </div>
       </div>
 
-      <h3>O Triângulo da Interação</h3>
-      <p>Um bom design de interface equilibra três forças:</p>
+      <h3>O que é um protótipo?</h3>
+      <p>Um protótipo é um modelo, uma representação de um design que possibilita que stakeholders interajam com o que foi elaborado e simulem funcionalidades. Não precisa ter as características finais — pode ser um desenho em papel, esboço de tela à mão, vídeo simulado ou modelo em papelão. (Rogers, Sharp e Preece, 2013)</p>
+      <p>O processo é feito em ciclos: designers elaboram → usuários avaliam → designers ajustam. Cada ciclo gera aprendizado antes de investir em desenvolvimento real. O protótipo normalmente enfatiza características ou funcionalidades específicas que se deseja testar naquele momento, não o sistema completo.</p>
+
+      <h3>Tipos de prototipação — por fidelidade</h3>
+      <table>
+        <tr><th>Tipo</th><th>Semelhança com o artefato final</th><th>Material / Abordagem</th><th>Melhor para</th></tr>
+        <tr><td><strong>Baixa fidelidade</strong></td><td>Nenhuma ou mínima</td><td>Papel, post-its, cartolina, isopor</td><td>Fases iniciais; explorar conceitos e fluxos</td></tr>
+        <tr><td><strong>Alta fidelidade</strong></td><td>Muito próxima</td><td>Mesmos materiais do produto final; software real</td><td>Validação final; testes de usabilidade detalhados</td></tr>
+      </table>
+      <p>Outra classificação, por amplitude:</p>
+      <table>
+        <tr><th>Tipo</th><th>Descrição</th></tr>
+        <tr><td><strong>Horizontal</strong></td><td>Grande variedade de funções, mas com poucos detalhes em cada uma</td></tr>
+        <tr><td><strong>Vertical</strong></td><td>Poucas funções, mas cada uma detalhada ao máximo</td></tr>
+      </table>
+
+      <div class="slide-gallery">
+        <div class="slides-grid">
+          <figure class="slide-item"><img src="../assets/img/slides/btr_05.png" alt="Espectro de Fidelidade"><figcaption>O espectro de fidelidade</figcaption></figure>
+          <figure class="slide-item"><img src="../assets/img/slides/btr_09.png" alt="Mapa de Decisão"><figcaption>Mapa de decisão por fidelidade</figcaption></figure>
+          <figure class="slide-item"><img src="../assets/img/slides/btr_06.png" alt="Baixa Fidelidade"><figcaption>Baixa fidelidade: validando com papel</figcaption></figure>
+        </div>
+      </div>
+
+      <h3>Design Conceitual</h3>
+      <p>O design conceitual transforma os requisitos levantados em um <strong>modelo conceitual</strong> — uma descrição de tudo que o usuário pode fazer durante a utilização do artefato, e quais conceitos são necessários para entender como interagir com ele.</p>
+      <p>Quatro princípios fundamentam o design conceitual (Rogers, Sharp e Preece, 2013):</p>
       <ul>
-        <li><strong>Usuário:</strong> o centro da experiência. Tudo começa nas suas necessidades reais.</li>
-        <li><strong>Contato Físico:</strong> como o usuário manipula a interface (toque, clique, gestos).</li>
-        <li><strong>Contato Conceitual:</strong> como o usuário interpreta o retorno do sistema — se o que aconteceu faz sentido para ele.</li>
+        <li>Manter a mente aberta para a criatividade, mas os interesses dos usuários vêm primeiro.</li>
+        <li>Discutir as ideias que surgirem com os stakeholders, na medida do possível.</li>
+        <li>Quando precisar de feedback rápido, usar <strong>prototipação de baixa fidelidade</strong>.</li>
+        <li>Fazer muitos ciclos iterativos — usuários avaliam, designer adapta.</li>
       </ul>
+      <p>O design conceitual cuida de questões como: quais funções existem, como elas se relacionam entre si, e quais informações precisam estar disponíveis em cada momento.</p>
 
-      <h3>O Circuito de Prototipação</h3>
-      <p>O design não é linear — é um ciclo de aprendizado contínuo:</p>
-      <div class="diagram"> 1. Levantamento → 2. Elaboração do Protótipo → 3. Validação com o Cliente
-                ↑                                                         |
-                └──────────────── 4. Ajustes e Melhorias ←───────────────┘</div>
+      <h3>Design Físico</h3>
+      <p>O design físico toma as decisões e escolhas para elaborar uma interface que respeite requisitos ambientais, de usuários, de usabilidade, de experiência e de restrições legais. Duas considerações principais sobre os usuários:</p>
+      <div class="cards">
+        <div class="card"><h4>Acessibilidade</h4><p>Tornar o artefato utilizável para o maior número de pessoas: leitores de tela, controle por voz, aumento de zoom, teclados em Braille, contraste elevado. Acessibilidade é requisito, não diferencial.</p></div>
+        <div class="card"><h4>Cultura Nacional</h4><p>Idioma, cores, ícones, formatos de data/hora/moeda e padrões culturais variam por região. Um produto global precisa se adaptar a essas diferenças sem forçar o usuário a se adaptar ao software.</p></div>
+      </div>
 
-      <h3>Cenários: projetar o contexto antes da tela</h3>
-      <p>Antes de desenhar qualquer tela, projete cenários — narrativas informais sobre as tarefas do usuário. Um cenário responde: <em>quem é o usuário, qual é o contexto dele, qual ação ele quer executar e qual é o objetivo final?</em></p>
+      <h3>Cenários — narrativas antes das telas</h3>
+      <p>Cenários são histórias informais que descrevem as atividades do usuário durante a utilização da interface. São a base para o design — antes de desenhar qualquer tela, é preciso entender o contexto de uso.</p>
 
       <div class="slide-gallery">
         <div class="slides-grid">
@@ -828,28 +1072,31 @@
         </div>
       </div>
 
-      <h3>O Espectro de Fidelidade</h3>
-      <p>Fidelidade é o grau de semelhança entre o protótipo e o produto final. Não existe nível "certo" — cada fase do projeto pede um nível diferente.</p>
+      <p>Os sete elementos de um cenário (Baranauskas e Rocha, 2003):</p>
+      <table>
+        <tr><th>Elemento</th><th>O que descreve</th></tr>
+        <tr><td><strong>Contexto</strong></td><td>Detalhes e situações que explicam os objetivos e papéis dos atores</td></tr>
+        <tr><td><strong>Evento</strong></td><td>Ação externa do computador ou ambiente que interage com a interface</td></tr>
+        <tr><td><strong>Avaliação</strong></td><td>Atividade mental do usuário ao interpretar uma situação</td></tr>
+        <tr><td><strong>Ação</strong></td><td>Ação observável realizada pelo ator</td></tr>
+        <tr><td><strong>Atores</strong></td><td>Pessoas que interagem com a interface; inclui perfil de acesso e acessibilidade</td></tr>
+        <tr><td><strong>Objetivos</strong></td><td>O que o ator deseja atingir — a motivação para suas ações</td></tr>
+        <tr><td><strong>Plano</strong></td><td>O raciocínio mental para converter objetivos em ações concretas</td></tr>
+      </table>
+      <p>Cenários podem ser positivos ou negativos, pois precisam identificar as consequências de cada ideia de design. São ferramentas flexíveis, provisórias e de baixo custo — permitem obter feedback dos stakeholders sem construir um protótipo funcional completo.</p>
 
-      <div class="slide-gallery">
-        <div class="slides-grid">
-          <figure class="slide-item"><img src="../assets/img/slides/btr_05.png" alt="Espectro de Fidelidade"><figcaption>O espectro de fidelidade (0% a 100%)</figcaption></figure>
-          <figure class="slide-item"><img src="../assets/img/slides/btr_09.png" alt="Mapa de Decisão"><figcaption>Mapa de decisão por fidelidade</figcaption></figure>
-        </div>
+      <div class="callout tip">
+        <strong>Dicas para a Prova</strong>
+        <ul>
+          <li>Esboçar desenhos de telas para que usuários avaliem e troquem ideias com designers = <strong>Prototipação</strong> (não brainstorming, entrevista ou questionário).</li>
+          <li>Protótipo muito detalhado, próximo ao produto final, em que usuários conseguem simular inclusão/exclusão = <strong>alta fidelidade</strong>.</li>
+          <li>Esclarecer responsabilidades dos usuários, elementos da interface e o que cada aspecto significa = fase de <strong>design conceitual</strong>.</li>
+          <li>Considerar limitações físicas dos usuários, região geográfica e cultura = <strong>design físico</strong>.</li>
+          <li>Um protótipo com passos descritivos do usuário (ex.: "usuário clica em Cadastro → informa dados → clica Salvar") é um protótipo que utiliza <strong>cenários</strong>.</li>
+        </ul>
       </div>
 
-      <h3>Baixa Fidelidade — papel e caneta</h3>
-      <ul>
-        <li><strong>Objetivo:</strong> validar conceitos e fluxos básicos.</li>
-        <li><strong>Materiais:</strong> papel, post-its, caneta, estoques manuais.</li>
-        <li><strong>Vantagem:</strong> descartável, rapidíssimo, sem apego emocional — qualquer um consegue riscar e melhorar.</li>
-      </ul>
-
-      <div class="slide-gallery">
-        <div class="slides-grid">
-          <figure class="slide-item"><img src="../assets/img/slides/btr_06.png" alt="Baixa Fidelidade"><figcaption>Baixa fidelidade: validando com papel</figcaption></figure>
-        </div>
-      </div>
+      <p class="ref">Referências: ROGERS, Y.; SHARP, H.; PREECE, J. <em>Design de Interação: além da interação humano-computador</em>, 3ª ed., 2013. BARANAUSKAS, M.C.C.; ROCHA, H.V. <em>Design e Avaliação de Interfaces Humano-Computador</em>, 2003.</p>
 
       <div class="section-nav">
         <a href="#" data-sec="ua8" class="prev">Análise OO</a>
@@ -860,56 +1107,109 @@
     <!-- ═══════════════════════════════════════════════════ UA10 -->
     <section id="ua10">
       <h2>UA10 — Utilizando Protótipos no Design</h2>
-      <p class="subtitle">À medida que as ideias se consolidam, o protótipo evolui em fidelidade. Média fidelidade estrutura a informação; alta fidelidade simula a experiência final.</p>
+      <p class="subtitle">Os protótipos evoluem em fidelidade ao longo do projeto — de esboços em papel a simulações funcionais. Cada nível tem seu momento certo, materiais específicos e objetivos distintos.</p>
 
-      <h3>Média Fidelidade — Wireframes</h3>
-      <p>Wireframes são o esqueleto da interface: sem cores, sem tipografia final, sem imagens reais. O foco é na <strong>arquitetura da informação</strong> — onde cada elemento fica, qual é a hierarquia, como a navegação funciona.</p>
-      <ul>
-        <li>Foco na organização visual e nos relacionamentos entre elementos.</li>
-        <li>Simula funções essenciais sem distrações estéticas.</li>
-        <li>Permite testar o fluxo de navegação antes de qualquer decisão visual.</li>
-      </ul>
+      <h3>Os três níveis de prototipação</h3>
+      <table>
+        <tr><th>Nível</th><th>Material</th><th>Semelhança com o produto final</th><th>Quando usar</th></tr>
+        <tr><td><strong>Baixo</strong></td><td>Papel, cartolina, post-its, esboços</td><td>Nenhuma ou mínima</td><td>Início do projeto; explorar estrutura e navegação</td></tr>
+        <tr><td><strong>Médio</strong></td><td>Modelo computadorizado com funcionalidades limitadas</td><td>Aparência visual real, mas ações simuladas</td><td>Validar fluxos e aspectos visuais específicos</td></tr>
+        <tr><td><strong>Alto</strong></td><td>Mesmos materiais do produto final; banco de dados de homologação</td><td>Idêntica ao produto final</td><td>Fase final; critério de aceite com o cliente</td></tr>
+      </table>
 
       <div class="slide-gallery">
-        <span class="gallery-label">Slides — Níveis de Fidelidade</span>
+        <span class="gallery-label">Slides — Níveis de Prototipação</span>
         <div class="slides-grid">
           <figure class="slide-item"><img src="../assets/img/slides/btr_07.png" alt="Wireframes — Média Fidelidade"><figcaption>Wireframes: arquitetura da informação</figcaption></figure>
           <figure class="slide-item"><img src="../assets/img/slides/btr_08.png" alt="Alta Fidelidade"><figcaption>Alta fidelidade: simulação final</figcaption></figure>
         </div>
       </div>
 
-      <h3>Alta Fidelidade — simulação da experiência final</h3>
-      <p>Mockups ou protótipos funcionais com aparência e comportamento próximos do produto real. É aqui que se valida com usuários finais antes de escrever código.</p>
+      <h3>Detalhamento por nível</h3>
+
+      <h4>Baixo nível</h4>
       <ul>
-        <li><strong>Cores e UI:</strong> paleta de cores, tipografia, ícones, componentes visuais.</li>
-        <li><strong>Interatividade:</strong> simula navegação real, transições e tempos de resposta.</li>
-        <li><strong>Validação final:</strong> base para o critério de aceite com o cliente antes da implementação.</li>
+        <li>Elaborado mais rapidamente; não tem muita semelhança com o artefato final.</li>
+        <li>Objetivo: capturar propostas iniciais e representar estrutura, funcionalidades e navegação de forma genérica.</li>
+        <li>Tende a ser descartado rapidamente e substituído por versões melhoradas.</li>
+        <li>Qualquer pessoa pode elaborar — sem exigência de habilidades técnicas.</li>
       </ul>
 
-      <div class="callout green">
-        <strong>Quando usar alta fidelidade?</strong>
-        <p>Quando a estrutura e o fluxo já estão validados (wireframe aprovado) e você precisa testar a aparência e a interatividade com usuários reais. Avançar para alta fidelidade antes de validar a estrutura é desperdício — você investe tempo em visual de algo que ainda pode mudar radicalmente.</p>
+      <h4>Médio nível</h4>
+      <ul>
+        <li>Reúne vantagens do baixo e do alto nível.</li>
+        <li>Modelo computadorizado com apenas as funções mais fundamentais para avaliação.</li>
+        <li>Ações e reações do sistema são <em>simuladas</em> — ex.: simula exclusão de registro sem realmente deletar do banco.</li>
+        <li>Telas têm aspectos visuais reais da interface final.</li>
+      </ul>
+
+      <h4>Alto nível</h4>
+      <ul>
+        <li>Muito semelhante ao artefato final — mesmos materiais que serão usados no produto.</li>
+        <li>Apresenta cores, botões, ícones, caixas de texto, janelas, exatamente como no produto final.</li>
+        <li>Conectado a banco de dados de desenvolvimento/homologação (não de produção).</li>
+        <li>Utilizado para análises aprofundadas de aspectos visuais, interatividade e usabilidade.</li>
+        <li>Base para a fase de aceite pelo cliente — o cliente concorda com o protótipo antes da produção.</li>
+      </ul>
+
+      <h3>Interface vs Interação — conceitos distintos</h3>
+      <p>Os termos são confundidos com frequência, mas significam coisas diferentes:</p>
+      <table>
+        <tr><th>Conceito</th><th>Definição</th></tr>
+        <tr><td><strong>Interface</strong></td><td>O componente do artefato com o qual o usuário estabelece contato — físico, perceptivo ou conceitual. É o <em>meio</em> de comunicação.</td></tr>
+        <tr><td><strong>Interação</strong></td><td>O <em>processo</em> de comunicação entre o usuário e o computador, por meio da interface. É mais abrangente — inclui tudo que acontece durante o uso.</td></tr>
+      </table>
+      <p>O contato do usuário com a interface acontece de duas formas:</p>
+      <ul>
+        <li><strong>Contato físico:</strong> manipulação de mouse, teclado, tela touch; percepção de mensagens pelo monitor ou áudio.</li>
+        <li><strong>Contato conceitual:</strong> interpretação das respostas do sistema; verificação se os objetivos foram atingidos.</li>
+      </ul>
+      <p>A interface é aquela parte do artefato com a qual o usuário entra em contato. A interação é o processo completo de comunicação que se estabelece <em>por meio</em> dessa interface.</p>
+
+      <h3>Prototipação em Papel — como funciona na prática</h3>
+      <p>O protótipo em papel é de baixo nível e pode ser confeccionado com papel, post-it, cola, tesoura e caneta. O ciclo de avaliação funciona assim:</p>
+      <ol>
+        <li>O designer apresenta o desenho da tela para o usuário.</li>
+        <li>O designer informa uma atividade típica do domínio para o usuário executar.</li>
+        <li>O usuário aponta com o dedo onde clicaria ou digitaria, e descreve o que espera que aconteça.</li>
+        <li>Um membro da equipe faz o papel da <strong>máquina</strong> — substitui a tela conforme as ações do usuário, simulando o sistema.</li>
+        <li>Um membro registra tudo que acontece durante a interação.</li>
+        <li>O moderador pode questionar sobre caixas de diálogo e ações automáticas que o usuário não identificou.</li>
+      </ol>
+      <p>O protótipo em papel deve ter todos os elementos: botões, menus, submenus, caixas de diálogo, mensagens de erro. Cada ciclo pode levar horas ou minutos — permitindo muitos ciclos e modificações rápidas durante a própria avaliação.</p>
+
+      <h3>Protótipos Descartáveis vs Evolutivos</h3>
+      <div class="cards">
+        <div class="card"><h4>Descartável</h4><p>Criado para responder uma dúvida específica e depois serve apenas de consulta histórica. Papel e baixo nível são descartáveis por natureza.</p></div>
+        <div class="card"><h4>Evolutivo</h4><p>Criado na fase inicial e melhorado progressivamente conforme o projeto avança. Torna-se o produto final ao longo do tempo. Comum em ambientes ágeis.</p></div>
       </div>
 
-      <h3>Ecossistema de Ferramentas</h3>
+      <h3>Ferramentas de Prototipação</h3>
       <div class="slide-gallery">
         <div class="slides-grid">
           <figure class="slide-item"><img src="../assets/img/slides/btr_10.png" alt="Ecossistema de Ferramentas"><figcaption>Ferramentas por nível de fidelidade</figcaption></figure>
         </div>
       </div>
-
       <table>
-        <tr><th>Fidelidade</th><th>Ferramentas</th></tr>
-        <tr><td>Muito baixa (conceitual)</td><td>Papel, caneta, post-its</td></tr>
-        <tr><td>Baixa → Média (wireframe)</td><td>Uizard, Balsamiq, Lucidchart</td></tr>
-        <tr><td>Média → Alta (interativo)</td><td>Marvel App, ProtoPie, Figma</td></tr>
-        <tr><td>Alta (UI final)</td><td>Figma, Adobe XD, InVision</td></tr>
+        <tr><th>Nível</th><th>Ferramentas</th></tr>
+        <tr><td>Baixo (esboços)</td><td>Papel, caneta, post-its, quadro branco</td></tr>
+        <tr><td>Baixo → Médio (wireframe)</td><td>Balsamiq, Uizard, Lucidchart</td></tr>
+        <tr><td>Médio → Alto (interativo)</td><td>Marvel App, ProtoPie, Figma</td></tr>
+        <tr><td>Alto (UI final)</td><td>Figma, Adobe XD, InVision, Axure RP, Sketch</td></tr>
       </table>
 
-      <div class="callout">
-        <strong>Grande parte dessas ferramentas oferece planos gratuitos para estudantes</strong>
-        <p>Figma é gratuito para uso básico. Balsamiq tem trial. Marvel App tem plano free. Não há desculpa para não prototipar.</p>
+      <div class="callout tip">
+        <strong>Dicas para a Prova</strong>
+        <ul>
+          <li>Papel e caneta como único material disponível = prototipagem de <strong>baixo nível</strong>.</li>
+          <li>Protótipos com aparência atrativa mas funcionalidades apenas visualizadas (sem interação real) = <strong>médio nível</strong> (editor de imagens, design gráfico).</li>
+          <li>Necessidade de curso de linguagem de programação para criar protótipos = protótipos de <strong>alto nível</strong> (programados, funcionais).</li>
+          <li>Interface e interação <strong>não são sinônimos</strong>: interface é o meio de comunicação; interação é o processo de comunicação realizado por meio da interface.</li>
+          <li>Protótipos <strong>descartáveis</strong> são usados e depois servem de consulta; <strong>evolutivos</strong> são melhorados ao longo do projeto.</li>
+        </ul>
       </div>
+
+      <p class="ref">Referências: ROCHA, H.V.; BARANAUSKAS, M.C.C. <em>Design e Avaliação de Interfaces Humano-Computador</em>, 2003. BARBOSA, S.D.J.; SILVA, B.S. <em>Interação Humano-Computador</em>, 2010. ROGERS, Y.; SHARP, H.; PREECE, J. <em>Design de Interação</em>, 3ª ed., 2013.</p>
 
       <div class="section-nav">
         <a href="#" data-sec="ua9" class="prev">Prototipação</a>
