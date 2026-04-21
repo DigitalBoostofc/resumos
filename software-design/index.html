@@ -456,41 +456,122 @@
     <!-- ═══════════════════════════════════════════════════ UA4 -->
     <section id="ua4">
       <h2>UA4 — Projetar a Solução</h2>
-      <p class="subtitle">Com os requisitos mapeados e o plano definido, a fase de projeto da solução detalha tecnicamente como o sistema vai ser construído. É aqui que a arquitetura sai do papel e se torna um guia concreto para os desenvolvedores.</p>
+      <p class="subtitle">Projeto de software é o processo de traduzir requisitos em uma especificação técnica concreta. A primeira e mais importante decisão é a arquitetura — depois vem a decomposição modular e a documentação do que foi decidido.</p>
 
-      <h3>Princípios de Bom Design</h3>
+      <h3>Projeto de software vs. Arquitetura de software</h3>
+      <p>São conceitos distintos mas complementares: <strong>arquitetura</strong> refere-se às estruturas de alto nível do sistema, às decisões estruturais fundamentais caras de mudar após implementadas (Bass; Clements; Kazman, 2012). <strong>Projeto de software</strong> é o processo mais amplo de criar a especificação de um artefato, incluindo componentes de baixo nível, algoritmos e a arquitetura como ponto de partida.</p>
+
+      <h3>Cinco características da arquitetura de software</h3>
       <div class="cards">
-        <div class="card"><h4>Alta Coesão</h4><p>Cada módulo/classe faz uma coisa só e faz bem. Código coeso é mais fácil de entender, testar e reutilizar.</p></div>
-        <div class="card"><h4>Baixo Acoplamento</h4><p>Módulos dependem pouco uns dos outros. Alterar um não quebra os outros. Favorece evolução independente.</p></div>
-        <div class="card"><h4>DRY</h4><p><em>Don't Repeat Yourself.</em> Cada pedaço de conhecimento deve ter uma representação única no sistema.</p></div>
-        <div class="card"><h4>KISS</h4><p><em>Keep It Simple.</em> A solução mais simples que funciona é sempre preferível à elegante que ninguém entende.</p></div>
-        <div class="card"><h4>YAGNI</h4><p><em>You Aren't Gonna Need It.</em> Não implemente o que não é necessário agora. Evite over-engineering.</p></div>
-        <div class="card"><h4>SOLID</h4><p>5 princípios de design OO (Single Responsibility, Open/Closed, Liskov, Interface Segregation, Dependency Inversion).</p></div>
+        <div class="card"><h4>Atender stakeholders</h4><p>Gerentes, usuários, operadores — cada parte interessada tem necessidades. A arquitetura equilibra e endereça todas essas preocupações.</p></div>
+        <div class="card"><h4>Separação de necessidades</h4><p>A complexidade é reduzida separando as necessidades em diferentes pontos de vista (vistas arquitetônicas), cada um descrevendo o sistema de um ângulo.</p></div>
+        <div class="card"><h4>Orientada pela qualidade</h4><p>A arquitetura é guiada por atributos de qualidade (RNFs): tolerância a falhas, extensibilidade, segurança, manutenibilidade, disponibilidade.</p></div>
+        <div class="card"><h4>Estilos recorrentes</h4><p>Padrões arquitetônicos são soluções reutilizáveis para necessidades recorrentes — evitam reinventar soluções já consolidadas.</p></div>
+        <div class="card"><h4>Integridade conceitual</h4><p>A arquitetura representa uma visão geral coerente. O arquiteto garante que adições ao sistema estejam alinhadas com essa visão.</p></div>
       </div>
 
-      <h3>SOLID — Detalhe dos princípios</h3>
+      <h3>Três tipos de projeto de software</h3>
+      <table>
+        <tr><th>Tipo</th><th>Nível de abstração</th><th>Foco</th></tr>
+        <tr><td>Estrutural</td><td>Alto — visão abstrata</td><td>Visão geral do sistema como múltiplos componentes que interagem; domínio da solução proposta</td></tr>
+        <tr><td>Alto nível</td><td>Médio — menos abstrato</td><td>Quebra em subsistemas e módulos; estrutura modular e interação entre subsistemas</td></tr>
+        <tr><td>Detalhado</td><td>Baixo — implementação</td><td>Estrutura lógica de cada módulo, interfaces para comunicação entre módulos, algoritmos</td></tr>
+      </table>
+
+      <h3>Modularização</h3>
+      <p>Técnica para dividir o sistema em módulos independentes, capazes de executar tarefas de forma autônoma. Segue a estratégia "dividir e conquistar". Vantagens da modularização:</p>
+      <ul>
+        <li>Componentes pequenos são mais fáceis de manter</li>
+        <li>O sistema pode ser dividido com base em aspectos funcionais</li>
+        <li>Permite o nível de abstração desejado</li>
+        <li>Componentes com alta coesão podem ser reutilizados</li>
+        <li>Possibilidade de execução concorrente (paralela)</li>
+        <li>Maior segurança por isolamento</li>
+      </ul>
+
+      <h3>Coesão — o que é e seus 7 tipos</h3>
+      <p>Coesão mede o grau de relacionamento entre os elementos <em>dentro</em> de um módulo. Quanto maior, melhor o design. Do mais fraco ao mais forte:</p>
+      <table>
+        <tr><th>Tipo</th><th>Descrição</th><th>Qualidade</th></tr>
+        <tr><td>Coincidental</td><td>Agrupamento não planejado; resultado de modularização arbitrária</td><td>Pior</td></tr>
+        <tr><td>Lógica</td><td>Elementos logicamente categorizados juntos, mas funcionalmente distintos</td><td>Fraca</td></tr>
+        <tr><td>Temporal</td><td>Elementos processados em um ponto de tempo similar (ex.: inicialização)</td><td>Fraca</td></tr>
+        <tr><td>Processual</td><td>Elementos agrupados e executados sequencialmente para uma tarefa</td><td>Moderada</td></tr>
+        <tr><td>Comunicativa</td><td>Elementos sequenciais que operam sobre os mesmos dados</td><td>Moderada</td></tr>
+        <tr><td>Sequencial</td><td>Saída de um elemento é entrada do próximo</td><td>Boa</td></tr>
+        <tr><td>Funcional</td><td>Todos os elementos contribuem para uma única função bem definida; reutilizável</td><td>Melhor</td></tr>
+      </table>
+
+      <h3>Acoplamento — o que é e seus 5 níveis</h3>
+      <p>Acoplamento mede o nível de interdependência <em>entre</em> módulos. Quanto menor, melhor o design. Do mais forte ao mais fraco:</p>
+      <table>
+        <tr><th>Nível</th><th>Descrição</th><th>Qualidade</th></tr>
+        <tr><td>Conteúdo</td><td>Um módulo acessa ou modifica diretamente o conteúdo interno de outro</td><td>Pior</td></tr>
+        <tr><td>Comum (global)</td><td>Vários módulos têm acesso de leitura e gravação a dados globais compartilhados</td><td>Ruim</td></tr>
+        <tr><td>Controle</td><td>Um módulo decide a função ou muda o fluxo de execução de outro</td><td>Moderado</td></tr>
+        <tr><td>Selo</td><td>Módulos compartilham uma estrutura de dados comum e trabalham em partes diferentes dela</td><td>Moderado</td></tr>
+        <tr><td>Dados</td><td>Módulos interagem apenas passando dados como parâmetros simples</td><td>Melhor</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>A relação entre coesão e acoplamento</strong>
+        <p>São métricas opostas mas complementares: buscamos <strong>alta coesão</strong> (elementos relacionados ficam juntos) e <strong>baixo acoplamento</strong> (módulos independem uns dos outros). Um sistema com coesão funcional e acoplamento de dados é bem projetado — cada módulo faz uma coisa só e se comunica com outros apenas por parâmetros.</p>
+      </div>
+
+      <h3>Princípios práticos de design</h3>
+      <div class="cards">
+        <div class="card"><h4>DRY</h4><p><em>Don't Repeat Yourself.</em> Cada pedaço de conhecimento deve ter uma representação única no sistema.</p></div>
+        <div class="card"><h4>KISS</h4><p><em>Keep It Simple.</em> A solução mais simples que funciona é preferível à elegante que ninguém entende.</p></div>
+        <div class="card"><h4>YAGNI</h4><p><em>You Aren't Gonna Need It.</em> Não implemente o que não é necessário agora.</p></div>
+        <div class="card"><h4>SOLID</h4><p>5 princípios de OO: SRP, Open/Closed, Liskov, Interface Segregation, Dependency Inversion.</p></div>
+      </div>
+
+      <h3>SOLID — os 5 princípios</h3>
       <table>
         <tr><th>Letra</th><th>Princípio</th><th>Em prática</th></tr>
         <tr><td><strong>S</strong></td><td>Single Responsibility</td><td>Uma classe deve ter apenas um motivo para mudar</td></tr>
         <tr><td><strong>O</strong></td><td>Open/Closed</td><td>Aberta para extensão, fechada para modificação</td></tr>
-        <tr><td><strong>L</strong></td><td>Liskov Substitution</td><td>Subclasses devem poder substituir a superclasse sem quebrar o sistema</td></tr>
-        <tr><td><strong>I</strong></td><td>Interface Segregation</td><td>Muitas interfaces específicas > uma interface genérica</td></tr>
+        <tr><td><strong>L</strong></td><td>Liskov Substitution</td><td>Subclasses substituem a superclasse sem quebrar o sistema</td></tr>
+        <tr><td><strong>I</strong></td><td>Interface Segregation</td><td>Muitas interfaces específicas são melhores que uma genérica</td></tr>
         <tr><td><strong>D</strong></td><td>Dependency Inversion</td><td>Dependa de abstrações, não de implementações concretas</td></tr>
       </table>
 
-      <h3>Padrões de Projeto (Design Patterns — GoF)</h3>
-      <p>Soluções reutilizáveis para problemas recorrentes. Não são código — são receitas de design.</p>
+      <h3>Padrões arquitetônicos</h3>
+      <p>Padrões são soluções reutilizáveis para necessidades recorrentes (Angelov; Grefen; Greefhorst, 2009). Os mais conhecidos:</p>
+      <div class="cards">
+        <div class="card"><h4>Camadas / MVC</h4><p>Separação em níveis horizontais; cada camada tem responsabilidade única.</p></div>
+        <div class="card"><h4>Cliente-Servidor</h4><p>Divisão entre quem solicita (cliente) e quem processa (servidor).</p></div>
+        <div class="card"><h4>Orientado a Eventos</h4><p>Componentes comunicam-se emitindo e consumindo eventos.</p></div>
+        <div class="card"><h4>SOA / Microservices</h4><p>Serviços autônomos com interfaces bem definidas.</p></div>
+        <div class="card"><h4>Tubos e Filtros</h4><p>Dados fluem por uma sequência de transformações (filtros) conectadas por tubos.</p></div>
+        <div class="card"><h4>Peer-to-Peer (P2P)</h4><p>Nós iguais — cada um pode ser cliente e servidor simultaneamente.</p></div>
+      </div>
+
+      <h3>Documento de Especificação de Projeto</h3>
+      <p>Toda decisão de projeto deve ser documentada. O Documento de Especificação de Projeto (padrão IEEE) contém:</p>
       <table>
-        <tr><th>Categoria</th><th>Exemplos</th><th>Resolve</th></tr>
-        <tr><td>Criacionais</td><td>Singleton, Factory, Builder, Prototype</td><td>Como criar objetos de forma flexível</td></tr>
-        <tr><td>Estruturais</td><td>Adapter, Decorator, Facade, Composite</td><td>Como compor estruturas de objetos</td></tr>
-        <tr><td>Comportamentais</td><td>Observer, Strategy, Command, Iterator</td><td>Como objetos colaboram e distribuem responsabilidade</td></tr>
+        <tr><th>Seção</th><th>Conteúdo</th></tr>
+        <tr><td>Introdução</td><td>Proposta, escopo, visão geral, referencial teórico, definições/acrônimos</td></tr>
+        <tr><td>Visão geral do sistema</td><td>Descrição de alto nível do software</td></tr>
+        <tr><td>Arquitetura do Sistema</td><td>Projeto arquitetural, decomposição, projeto racional</td></tr>
+        <tr><td>Projeto de Dados</td><td>Descrição e dicionário de dados</td></tr>
+        <tr><td>Projeto de Componente</td><td>Especificação interna de cada módulo</td></tr>
+        <tr><td>Projeto de Interface</td><td>Visão geral, telas, ações e objetos</td></tr>
+        <tr><td>Matriz de Requisitos</td><td>Rastreabilidade entre requisitos e componentes</td></tr>
       </table>
 
       <div class="callout green">
-        <strong>Singleton — o mais famoso (e mal usado)</strong>
-        <p>Garante que uma classe tenha apenas uma instância. Útil para configuração, conexão ao banco, loggers. Mas cuidado: Singleton global vira estado global — dificulta testes e paralelismo.</p>
+        <strong>Dica de prova — escolha de arquitetura por contexto</strong>
+        <p>Sistema de RH corporativo com acesso interno apenas, alta segurança, servidor central fornecendo interface para terminais → <strong>Cliente-Servidor</strong>. O servidor centraliza os dados críticos; os terminais apenas interagem com o sistema sem armazenar informações sensíveis localmente.</p>
       </div>
+
+      <h4>Referências bibliográficas desta UA</h4>
+      <ul>
+        <li>BASS, L.; CLEMENTS, P.; KAZMAN, R. <em>Software Architecture in Practice</em>. 3. ed. Boston: Addison-Wesley, 2012.</li>
+        <li>ANGELOV, S.; GREFEN, P.; GREEFHORST, D. A Classification of Software Reference Architectures. In: <em>IEEE/IFIP WICSA & ECSA</em>, 2009.</li>
+        <li>SURYANARAYANA, G.; SAMARTHYAM, G.; SHARMA, T. <em>Refactoring for Software Design Smells</em>. Burlington: Morgan Kaufmann, 2015.</li>
+        <li>LEDUR, C. L. <em>Análise e projeto de sistemas</em>. Porto Alegre: SAGAH, 2017.</li>
+      </ul>
 
       <div class="section-nav">
         <a href="#" data-sec="ua3" class="prev">Plano de Projeto</a>
