@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Software Design — Resumos ADS</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --accent3: #f78166;
+      --accent4: #d2a8ff;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+    .back:hover { color: var(--text); }
+    .back::before { content: "← "; }
+    header h1 { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .tag { font-size: 0.7rem; background: rgba(63,185,80,.15); color: var(--accent2); border: 1px solid rgba(63,185,80,.3); padding: .2rem .6rem; border-radius: 20px; margin-left: .5rem; }
+
+    /* Layout */
+    .layout { display: flex; flex: 1; }
+
+    /* Sidebar */
+    aside {
+      width: 260px; min-width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      position: sticky; top: 57px;
+      height: calc(100vh - 57px);
+      overflow-y: auto;
+    }
+    .sidebar-group { margin-bottom: 1.5rem; }
+    .sidebar-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--muted);
+      padding: .25rem 1.25rem .5rem; display: block;
+    }
+    aside a {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .45rem 1.25rem;
+      color: var(--muted); text-decoration: none;
+      font-size: 0.82rem; transition: background .15s, color .15s;
+      border-left: 2px solid transparent;
+    }
+    aside a:hover { background: rgba(255,255,255,.04); color: var(--text); }
+    aside a.active { background: rgba(88,166,255,.08); color: var(--accent); border-left-color: var(--accent); }
+    aside a .num { font-size: .7rem; opacity: .5; min-width: 24px; }
+
+    /* Content */
+    main { flex: 1; padding: 2.5rem 3rem; max-width: 860px; }
+    section { display: none; }
+    section.active { display: block; }
+    section > h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: .4rem; }
+    section > .subtitle { color: var(--muted); font-size: .95rem; margin-bottom: 2rem; line-height: 1.6; }
+    h3 { font-size: 1rem; font-weight: 700; color: var(--accent); margin: 2rem 0 .75rem; display: flex; align-items: center; gap: .5rem; }
+    h3::before { content: ""; display: inline-block; width: 3px; height: 1em; background: var(--accent); border-radius: 2px; }
+    h4 { font-size: .85rem; font-weight: 600; color: var(--accent4); margin: 1.25rem 0 .5rem; }
+    p { font-size: .9rem; color: var(--muted); line-height: 1.75; margin-bottom: .75rem; }
+    ul, ol { padding-left: 1.4rem; margin-bottom: .75rem; }
+    li { font-size: .88rem; color: var(--muted); line-height: 1.7; }
+    li strong { color: var(--text); }
+    strong { color: var(--text); }
+
+    /* Cards grid */
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .75rem; margin: 1rem 0; }
+    .card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem;
+    }
+    .card h4 { color: var(--text); margin: 0 0 .4rem; font-size: .85rem; }
+    .card p { font-size: .8rem; margin: 0; }
+
+    /* Code */
+    pre {
+      background: #0d1117; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem 1.25rem;
+      overflow-x: auto; margin: .75rem 0;
+    }
+    code { font-family: "Fira Code", "Cascadia Code", monospace; font-size: .82rem; color: #e6edf3; }
+    .kw { color: #ff7b72; }
+    .str { color: #a5d6ff; }
+    .cm { color: #8b949e; font-style: italic; }
+    .fn { color: #d2a8ff; }
+    .num { color: #79c0ff; }
+    .var { color: #ffa657; }
+    p code, li code {
+      background: rgba(255,255,255,.07); border: 1px solid var(--border);
+      border-radius: 4px; padding: .1rem .4rem; font-size: .8rem; color: var(--text);
+    }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .85rem; }
+    th { background: var(--surface2); color: var(--text); font-weight: 600; padding: .6rem .9rem; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: .55rem .9rem; color: var(--muted); border-bottom: 1px solid rgba(48,54,61,.6); }
+    td:first-child { color: var(--text); }
+
+    /* Callout */
+    .callout {
+      background: rgba(88,166,255,.06); border: 1px solid rgba(88,166,255,.2);
+      border-radius: var(--radius); padding: 1rem 1.25rem; margin: 1rem 0;
+    }
+    .callout.green { background: rgba(63,185,80,.06); border-color: rgba(63,185,80,.2); }
+    .callout.orange { background: rgba(247,129,102,.06); border-color: rgba(247,129,102,.2); }
+    .callout strong { display: block; margin-bottom: .3rem; }
+    .callout p { margin: 0; font-size: .85rem; }
+
+    /* Diagram placeholder */
+    .diagram {
+      background: var(--surface2); border: 1px dashed var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1rem 0;
+      text-align: center; color: var(--muted); font-size: .85rem;
+      font-family: monospace; white-space: pre; line-height: 1.6; overflow-x: auto;
+    }
+
+    /* Nav footer */
+    .section-nav {
+      display: flex; justify-content: space-between; margin-top: 3rem;
+      padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .section-nav a {
+      color: var(--accent); text-decoration: none; font-size: .85rem;
+      padding: .5rem .9rem; border: 1px solid var(--border);
+      border-radius: var(--radius); transition: border-color .2s;
+    }
+    .section-nav a:hover { border-color: var(--accent); }
+    .section-nav a.next::after { content: " →"; }
+    .section-nav a.prev::before { content: "← "; }
+
+    @media (max-width: 768px) {
+      aside { display: none; }
+      main { padding: 1.5rem 1.25rem; max-width: 100%; }
+      header { padding: .75rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="../index.html">Início</a>
+  <h1>Software Design <span class="tag">Em andamento</span></h1>
+</header>
+
+<div class="layout">
+
+  <aside id="sidebar">
+    <div class="sidebar-group">
+      <span class="sidebar-label">Arquitetura</span>
+      <a href="#" data-sec="ua1" class="active"><span class="num">UA1</span> Intro à Arquitetura</a>
+      <a href="#" data-sec="ua2"><span class="num">UA2</span> Fase de Projeto</a>
+      <a href="#" data-sec="ua3"><span class="num">UA3</span> Plano de Projeto</a>
+      <a href="#" data-sec="ua4"><span class="num">UA4</span> Projetar a Solução</a>
+      <a href="#" data-sec="ua5"><span class="num">UA5</span> Arquitetura SOA</a>
+      <a href="#" data-sec="ua6"><span class="num">UA6</span> Serviços Web</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">Modelagem UML</span>
+      <a href="#" data-sec="ua7"><span class="num">UA7</span> Modelo de Análise</a>
+      <a href="#" data-sec="ua8"><span class="num">UA8</span> Análise OO</a>
+      <a href="#" data-sec="ua11"><span class="num">UA11</span> Diagrama de Classes</a>
+      <a href="#" data-sec="ua12"><span class="num">UA12</span> Diag. de Componentes</a>
+      <a href="#" data-sec="ua13"><span class="num">UA13</span> Diag. de Sequência</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">Prototipação</span>
+      <a href="#" data-sec="ua9"><span class="num">UA9</span> Prototipação</a>
+      <a href="#" data-sec="ua10"><span class="num">UA10</span> Protótipos no Design</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">Banco de Dados</span>
+      <a href="#" data-sec="ua14"><span class="num">UA14</span> Conceitos de BD</a>
+      <a href="#" data-sec="ua15"><span class="num">UA15</span> DER</a>
+      <a href="#" data-sec="ua16"><span class="num">UA16</span> MER</a>
+    </div>
+  </aside>
+
+  <main id="content">
+
+    <!-- UA1 -->
+    <section id="ua1" class="active">
+      <h2>UA1 — Introdução à Arquitetura de Sistemas</h2>
+      <p class="subtitle">Arquitetura de software é o conjunto de decisões estruturais que definem como um sistema é organizado, quais componentes o compõem e como eles se comunicam.</p>
+
+      <h3>O que é Arquitetura de Software?</h3>
+      <p>É a estrutura fundamental de um sistema: seus componentes, as relações entre eles e os princípios que guiam seu design e evolução. Escolher a arquitetura certa impacta diretamente manutenibilidade, escalabilidade e desempenho.</p>
+
+      <h3>Principais Estilos Arquiteturais</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>🏛️ Camadas (Layered)</h4>
+          <p>Organiza o sistema em camadas (apresentação, negócio, dados). Cada camada só se comunica com a adjacente.</p>
+        </div>
+        <div class="card">
+          <h4>🔌 Microsserviços</h4>
+          <p>Divide o sistema em serviços pequenos, independentes e deployáveis separadamente.</p>
+        </div>
+        <div class="card">
+          <h4>💻 Cliente-Servidor</h4>
+          <p>Divide papéis em cliente (consome) e servidor (fornece). Base da web.</p>
+        </div>
+        <div class="card">
+          <h4>📡 Orientada a Eventos</h4>
+          <p>Componentes se comunicam via eventos assíncronos. Alta desacoplagem.</p>
+        </div>
+        <div class="card">
+          <h4>🧩 SOA</h4>
+          <p>Serviços de negócio reutilizáveis que se comunicam via protocolos padrão (ex.: SOAP, REST).</p>
+        </div>
+        <div class="card">
+          <h4>🔄 MVC</h4>
+          <p>Model-View-Controller separa dados, interface e lógica de controle.</p>
+        </div>
+      </div>
+
+      <h3>Arquitetura em Camadas — detalhe</h3>
+      <div class="diagram">┌──────────────────────────┐
+│   Camada de Apresentação  │  ← Interface com o usuário
+├──────────────────────────┤
+│   Camada de Negócio       │  ← Regras e lógica da aplicação
+├──────────────────────────┤
+│   Camada de Dados         │  ← Acesso e persistência
+└──────────────────────────┘</div>
+
+      <h3>Como escolher?</h3>
+      <table>
+        <tr><th>Prioridade</th><th>Arquitetura recomendada</th></tr>
+        <tr><td>Organização / manutenção</td><td>Camadas</td></tr>
+        <tr><td>Escalabilidade independente</td><td>Microsserviços</td></tr>
+        <tr><td>Integração de sistemas legados</td><td>SOA</td></tr>
+        <tr><td>Processamento em tempo real</td><td>Orientada a Eventos</td></tr>
+        <tr><td>Aplicações web convencionais</td><td>MVC / Cliente-Servidor</td></tr>
+      </table>
+
+      <div class="callout green">
+        <strong>Dica de prova</strong>
+        <p>Um sistema pode adotar <strong>mais de uma arquitetura</strong> simultaneamente. Ex.: uma aplicação pode ser Cliente-Servidor por fora e usar MVC internamente.</p>
+      </div>
+
+      <div class="section-nav">
+        <span></span>
+        <a href="#" data-sec="ua2" class="next">Fase de Projeto</a>
+      </div>
+    </section>
+
+    <!-- UA2 -->
+    <section id="ua2">
+      <h2>UA2 — Fase de Projeto (Modelagem)</h2>
+      <p class="subtitle">A fase de projeto transforma os requisitos levantados em uma solução técnica detalhada antes que qualquer código seja escrito.</p>
+
+      <h3>Engenharia de Software — Fases</h3>
+      <p>O desenvolvimento de software segue um ciclo de vida. A fase de <strong>projeto/modelagem</strong> ocorre após a análise de requisitos e antes da implementação:</p>
+      <div class="diagram">Requisitos → Análise → [ Projeto / Modelagem ] → Implementação → Testes → Implantação</div>
+
+      <h3>O que acontece na fase de Projeto?</h3>
+      <ul>
+        <li><strong>Projeto Arquitetural:</strong> escolha do estilo arquitetural e divisão em módulos/subsistemas.</li>
+        <li><strong>Projeto de Interface:</strong> como os componentes se comunicam entre si e com o usuário.</li>
+        <li><strong>Projeto de Dados:</strong> estrutura do banco de dados (tabelas, entidades, relacionamentos).</li>
+        <li><strong>Projeto Procedimental:</strong> detalhamento de algoritmos e lógica interna dos componentes.</li>
+      </ul>
+
+      <h3>Modelos usados na fase de Projeto</h3>
+      <table>
+        <tr><th>Modelo</th><th>O que representa</th></tr>
+        <tr><td>Diagrama de Classes</td><td>Estrutura estática: classes, atributos, métodos e relacionamentos</td></tr>
+        <tr><td>Diagrama de Sequência</td><td>Interação entre objetos ao longo do tempo</td></tr>
+        <tr><td>Diagrama de Componentes</td><td>Organização física dos módulos do sistema</td></tr>
+        <tr><td>DER / MER</td><td>Estrutura do banco de dados</td></tr>
+        <tr><td>Protótipos</td><td>Representação visual das interfaces</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>Por que modelar antes de codar?</strong>
+        <p>Corrigir um erro de design no papel custa muito menos do que reescrever código em produção. A modelagem reduz retrabalho e facilita a comunicação com a equipe.</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua1" class="prev">Intro à Arquitetura</a>
+        <a href="#" data-sec="ua3" class="next">Plano de Projeto</a>
+      </div>
+    </section>
+
+    <!-- UA3 -->
+    <section id="ua3">
+      <h2>UA3 — Analisar e Desenvolver Plano de Projeto</h2>
+      <p class="subtitle">O Plano de Projeto de Software (PPS) é o documento que organiza como o projeto será executado: o quê, quem, quando e com quais recursos.</p>
+
+      <h3>Estrutura do Plano de Projeto</h3>
+      <ul>
+        <li><strong>Escopo:</strong> o que está incluído (e o que não está) no projeto.</li>
+        <li><strong>Cronograma:</strong> estimativa de tempo por atividade (Gráfico de Gantt, EAP).</li>
+        <li><strong>Recursos:</strong> equipe, ferramentas, infraestrutura necessária.</li>
+        <li><strong>Riscos:</strong> identificação de ameaças e planos de mitigação.</li>
+        <li><strong>Qualidade:</strong> critérios e métricas de aceitação.</li>
+        <li><strong>Comunicação:</strong> como e com que frequência a equipe e stakeholders se alinham.</li>
+      </ul>
+
+      <h3>EAP — Estrutura Analítica do Projeto</h3>
+      <p>Decomposição hierárquica do trabalho em pacotes menores e gerenciáveis:</p>
+      <div class="diagram">                 Projeto
+                 /    \
+          Módulo A    Módulo B
+          /    \          \
+     Tarefa1  Tarefa2   Tarefa3</div>
+
+      <h3>Estimativas</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>Pontos de Função</h4>
+          <p>Mede o tamanho funcional do software independente da tecnologia.</p>
+        </div>
+        <div class="card">
+          <h4>Story Points</h4>
+          <p>Usado em ágil; representa esforço relativo entre tarefas.</p>
+        </div>
+        <div class="card">
+          <h4>COCOMO</h4>
+          <p>Modelo matemático de estimativa de custo baseado em linhas de código.</p>
+        </div>
+      </div>
+
+      <h3>Ciclos de Vida</h3>
+      <table>
+        <tr><th>Modelo</th><th>Características</th></tr>
+        <tr><td>Cascata (Waterfall)</td><td>Fases sequenciais, saída de uma é entrada da próxima</td></tr>
+        <tr><td>Iterativo/Incremental</td><td>Entregas parciais e crescentes do produto</td></tr>
+        <tr><td>Scrum/Ágil</td><td>Sprints curtos, feedback contínuo, backlog priorizado</td></tr>
+        <tr><td>Espiral</td><td>Foco em análise de risco em cada ciclo</td></tr>
+      </table>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua2" class="prev">Fase de Projeto</a>
+        <a href="#" data-sec="ua4" class="next">Projetar a Solução</a>
+      </div>
+    </section>
+
+    <!-- UA4 -->
+    <section id="ua4">
+      <h2>UA4 — Projetar a Solução</h2>
+      <p class="subtitle">Com os requisitos mapeados e o plano definido, a fase de projeto da solução detalha tecnicamente como o sistema vai funcionar.</p>
+
+      <h3>Atividades do Projeto de Solução</h3>
+      <ul>
+        <li><strong>Definir a arquitetura:</strong> escolher o(s) estilo(s) arquiteturais adequados.</li>
+        <li><strong>Projetar os módulos:</strong> responsabilidades, interfaces e dependências de cada parte.</li>
+        <li><strong>Projetar o banco de dados:</strong> criar o MER/DER.</li>
+        <li><strong>Projetar as interfaces:</strong> wireframes e protótipos de baixa/alta fidelidade.</li>
+        <li><strong>Documentar:</strong> registrar as decisões em diagramas UML.</li>
+      </ul>
+
+      <h3>Princípios de Bom Design</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>Alta Coesão</h4>
+          <p>Cada módulo faz apenas uma coisa bem feita.</p>
+        </div>
+        <div class="card">
+          <h4>Baixo Acoplamento</h4>
+          <p>Módulos dependem pouco uns dos outros — facilita mudanças.</p>
+        </div>
+        <div class="card">
+          <h4>DRY</h4>
+          <p>Don't Repeat Yourself — evitar duplicação de lógica.</p>
+        </div>
+        <div class="card">
+          <h4>KISS</h4>
+          <p>Keep It Simple — solução mais simples que funcione.</p>
+        </div>
+      </div>
+
+      <h3>Padrões de Projeto (Design Patterns)</h3>
+      <p>Soluções reutilizáveis para problemas recorrentes no design de software (GoF — Gang of Four):</p>
+      <table>
+        <tr><th>Categoria</th><th>Exemplos</th><th>Objetivo</th></tr>
+        <tr><td>Criacionais</td><td>Singleton, Factory, Builder</td><td>Como criar objetos</td></tr>
+        <tr><td>Estruturais</td><td>Adapter, Decorator, Facade</td><td>Como compor estruturas</td></tr>
+        <tr><td>Comportamentais</td><td>Observer, Strategy, Command</td><td>Como objetos interagem</td></tr>
+      </table>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua3" class="prev">Plano de Projeto</a>
+        <a href="#" data-sec="ua5" class="next">Arquitetura SOA</a>
+      </div>
+    </section>
+
+    <!-- UA5 -->
+    <section id="ua5">
+      <h2>UA5 — Arquitetura Orientada a Serviços (SOA)</h2>
+      <p class="subtitle">SOA (Service-Oriented Architecture) organiza o sistema como uma coleção de serviços de negócio reutilizáveis e interoperáveis.</p>
+
+      <h3>Conceitos Fundamentais</h3>
+      <ul>
+        <li><strong>Serviço:</strong> unidade funcional autônoma com interface bem definida (ex.: "calcularFrete", "autenticarUsuário").</li>
+        <li><strong>Contrato:</strong> definição formal da interface do serviço (o que recebe, o que retorna).</li>
+        <li><strong>Interoperabilidade:</strong> serviços de diferentes tecnologias conseguem se comunicar.</li>
+        <li><strong>Reutilização:</strong> o mesmo serviço pode ser consumido por múltiplas aplicações.</li>
+      </ul>
+
+      <h3>Princípios SOA</h3>
+      <div class="cards">
+        <div class="card"><h4>Baixo Acoplamento</h4><p>Serviços independentes; mudanças em um não quebram outro.</p></div>
+        <div class="card"><h4>Abstração</h4><p>Consumidor não precisa saber como o serviço funciona internamente.</p></div>
+        <div class="card"><h4>Reutilização</h4><p>Lógica de negócio exposta como serviço compartilhado.</p></div>
+        <div class="card"><h4>Composição</h4><p>Serviços simples se combinam para criar processos complexos.</p></div>
+      </div>
+
+      <h3>SOA vs Microsserviços</h3>
+      <table>
+        <tr><th>Aspecto</th><th>SOA</th><th>Microsserviços</th></tr>
+        <tr><td>Granularidade</td><td>Serviços de negócio (maiores)</td><td>Serviços muito pequenos</td></tr>
+        <tr><td>Comunicação</td><td>ESB (Enterprise Service Bus)</td><td>APIs REST / mensageria</td></tr>
+        <tr><td>Deploy</td><td>Geralmente centralizado</td><td>Independente por serviço</td></tr>
+        <tr><td>Uso típico</td><td>Integração corporativa</td><td>Aplicações cloud-native</td></tr>
+      </table>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua4" class="prev">Projetar a Solução</a>
+        <a href="#" data-sec="ua6" class="next">Serviços Web</a>
+      </div>
+    </section>
+
+    <!-- UA6 -->
+    <section id="ua6">
+      <h2>UA6 — Projeto de Serviços Web</h2>
+      <p class="subtitle">Serviços Web permitem a comunicação entre sistemas via protocolos da internet (HTTP). Os dois estilos dominantes são SOAP e REST.</p>
+
+      <h3>SOAP</h3>
+      <p><strong>Simple Object Access Protocol</strong> — protocolo formal baseado em XML com contrato rígido (WSDL).</p>
+      <pre><code><span class="cm">&lt;!-- Exemplo de envelope SOAP --&gt;</span>
+&lt;soap:Envelope&gt;
+  &lt;soap:Body&gt;
+    &lt;calcularFrete&gt;
+      &lt;cep&gt;88000000&lt;/cep&gt;
+      &lt;peso&gt;2.5&lt;/peso&gt;
+    &lt;/calcularFrete&gt;
+  &lt;/soap:Body&gt;
+&lt;/soap:Envelope&gt;</code></pre>
+
+      <h3>REST</h3>
+      <p><strong>Representational State Transfer</strong> — estilo arquitetural baseado em HTTP, recursos e verbos.</p>
+      <table>
+        <tr><th>Verbo HTTP</th><th>Operação</th><th>Exemplo</th></tr>
+        <tr><td>GET</td><td>Ler/Listar</td><td>GET /usuarios/42</td></tr>
+        <tr><td>POST</td><td>Criar</td><td>POST /usuarios</td></tr>
+        <tr><td>PUT</td><td>Atualizar (total)</td><td>PUT /usuarios/42</td></tr>
+        <tr><td>PATCH</td><td>Atualizar (parcial)</td><td>PATCH /usuarios/42</td></tr>
+        <tr><td>DELETE</td><td>Remover</td><td>DELETE /usuarios/42</td></tr>
+      </table>
+
+      <h3>JSON — formato padrão REST</h3>
+      <pre><code>{
+  <span class="str">"id"</span>: <span class="num">42</span>,
+  <span class="str">"nome"</span>: <span class="str">"Marcus"</span>,
+  <span class="str">"email"</span>: <span class="str">"marcus@email.com"</span>,
+  <span class="str">"ativo"</span>: <span class="kw">true</span>
+}</code></pre>
+
+      <h3>SOAP vs REST</h3>
+      <table>
+        <tr><th>Aspecto</th><th>SOAP</th><th>REST</th></tr>
+        <tr><td>Protocolo</td><td>Próprio (sobre HTTP/SMTP)</td><td>HTTP</td></tr>
+        <tr><td>Formato</td><td>XML</td><td>JSON, XML, outros</td></tr>
+        <tr><td>Contrato</td><td>WSDL (obrigatório)</td><td>OpenAPI (opcional)</td></tr>
+        <tr><td>Complexidade</td><td>Alta</td><td>Baixa</td></tr>
+        <tr><td>Uso típico</td><td>Enterprise, bancos</td><td>APIs modernas, mobile</td></tr>
+      </table>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua5" class="prev">Arquitetura SOA</a>
+        <a href="#" data-sec="ua7" class="next">Modelo de Análise</a>
+      </div>
+    </section>
+
+    <!-- UA7 -->
+    <section id="ua7">
+      <h2>UA7 — Modelo de Análise de Software</h2>
+      <p class="subtitle">O modelo de análise transforma os requisitos em uma representação técnica do sistema, servindo de ponte entre o problema e a solução.</p>
+
+      <h3>Objetivos da Análise</h3>
+      <ul>
+        <li>Compreender o <strong>domínio</strong> do problema.</li>
+        <li>Identificar as <strong>entidades</strong>, <strong>comportamentos</strong> e <strong>interações</strong> do sistema.</li>
+        <li>Criar modelos que sirvam de base para o projeto detalhado.</li>
+      </ul>
+
+      <h3>Tipos de Modelos</h3>
+      <div class="cards">
+        <div class="card"><h4>Modelo Funcional</h4><p>O que o sistema faz. Representado por Casos de Uso e Diagramas de Atividades.</p></div>
+        <div class="card"><h4>Modelo Estrutural</h4><p>Como o sistema é organizado. Representado por Diagrama de Classes.</p></div>
+        <div class="card"><h4>Modelo Comportamental</h4><p>Como o sistema age ao longo do tempo. Representado por Diagrama de Sequência e de Estados.</p></div>
+      </div>
+
+      <h3>UML — Unified Modeling Language</h3>
+      <p>Linguagem padrão para modelagem de sistemas orientados a objetos. Principais diagramas:</p>
+      <table>
+        <tr><th>Diagrama</th><th>Tipo</th><th>Mostra</th></tr>
+        <tr><td>Classes</td><td>Estrutural</td><td>Classes e relacionamentos estáticos</td></tr>
+        <tr><td>Casos de Uso</td><td>Comportamental</td><td>Funcionalidades e atores</td></tr>
+        <tr><td>Sequência</td><td>Comportamental</td><td>Troca de mensagens entre objetos</td></tr>
+        <tr><td>Atividades</td><td>Comportamental</td><td>Fluxo de trabalho / algoritmo</td></tr>
+        <tr><td>Componentes</td><td>Estrutural</td><td>Módulos e dependências físicas</td></tr>
+        <tr><td>Implantação</td><td>Estrutural</td><td>Distribuição em hardware</td></tr>
+      </table>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua6" class="prev">Serviços Web</a>
+        <a href="#" data-sec="ua8" class="next">Análise OO</a>
+      </div>
+    </section>
+
+    <!-- UA8 -->
+    <section id="ua8">
+      <h2>UA8 — Modelo de Análise Orientado a Objetos</h2>
+      <p class="subtitle">A análise OO modela o sistema em termos de objetos que possuem dados (atributos) e comportamentos (métodos) e se comunicam entre si.</p>
+
+      <h3>Pilares da OO</h3>
+      <div class="cards">
+        <div class="card"><h4>Encapsulamento</h4><p>Dados e comportamento juntos; detalhes internos ocultos.</p></div>
+        <div class="card"><h4>Herança</h4><p>Classes filhas reutilizam e estendem comportamentos da classe pai.</p></div>
+        <div class="card"><h4>Polimorfismo</h4><p>Um método se comporta de formas diferentes conforme o objeto.</p></div>
+        <div class="card"><h4>Abstração</h4><p>Modelar apenas o que é relevante para o contexto.</p></div>
+      </div>
+
+      <h3>Relacionamentos em UML</h3>
+      <table>
+        <tr><th>Tipo</th><th>Símbolo</th><th>Significado</th></tr>
+        <tr><td>Associação</td><td>——</td><td>Objetos se conhecem</td></tr>
+        <tr><td>Agregação</td><td>——◇</td><td>"Tem um" (parte existe sem o todo)</td></tr>
+        <tr><td>Composição</td><td>——◆</td><td>"Tem um" (parte depende do todo)</td></tr>
+        <tr><td>Herança</td><td>——▷</td><td>"É um" (generalização)</td></tr>
+        <tr><td>Interface</td><td>- - ▷</td><td>"Implementa"</td></tr>
+        <tr><td>Dependência</td><td>- - →</td><td>Usa temporariamente</td></tr>
+      </table>
+
+      <h3>Identificando Classes</h3>
+      <p>Técnica: ler a especificação e sublinhar os <strong>substantivos</strong> (candidatos a classes/atributos) e os <strong>verbos</strong> (candidatos a métodos/associações).</p>
+
+      <div class="callout green">
+        <strong>Exemplo rápido</strong>
+        <p>"Um <u>cliente</u> realiza um <u>pedido</u> que contém vários <u>produtos</u>."<br>
+        → Classes: Cliente, Pedido, Produto. Relacionamento: Cliente —(1)—→(N)— Pedido —(N)—→(N)— Produto</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua7" class="prev">Modelo de Análise</a>
+        <a href="#" data-sec="ua11" class="next">Diagrama de Classes</a>
+      </div>
+    </section>
+
+    <!-- UA9 -->
+    <section id="ua9">
+      <h2>UA9 — Prototipação e Concepção</h2>
+      <p class="subtitle">Protótipos são representações parciais do sistema criadas para validar ideias com usuários antes de investir em desenvolvimento.</p>
+
+      <h3>Para que Prototipar?</h3>
+      <ul>
+        <li>Validar requisitos de interface com stakeholders.</li>
+        <li>Detectar problemas de usabilidade cedo.</li>
+        <li>Alinhar expectativas entre equipe e cliente.</li>
+        <li>Reduzir retrabalho na implementação.</li>
+      </ul>
+
+      <h3>Tipos de Protótipos</h3>
+      <table>
+        <tr><th>Tipo</th><th>Fidelidade</th><th>Ferramentas</th><th>Quando usar</th></tr>
+        <tr><td>Esboço (Sketch)</td><td>Muito baixa</td><td>Papel e caneta</td><td>Início, brainstorming</td></tr>
+        <tr><td>Wireframe</td><td>Baixa</td><td>Figma, Balsamiq</td><td>Estrutura e fluxo</td></tr>
+        <tr><td>Mockup</td><td>Média</td><td>Figma, Adobe XD</td><td>Visual e identidade</td></tr>
+        <tr><td>Protótipo navegável</td><td>Alta</td><td>Figma, Marvel</td><td>Teste de usabilidade</td></tr>
+      </table>
+
+      <h3>Abordagens</h3>
+      <div class="cards">
+        <div class="card"><h4>Throwaway</h4><p>Protótipo descartável — apenas para validação, não vira código.</p></div>
+        <div class="card"><h4>Evolutivo</h4><p>Protótipo que é refinado e evolui até virar o produto final.</p></div>
+      </div>
+
+      <div class="callout">
+        <strong>Prototipação no Design Thinking</strong>
+        <p>No ciclo Empatia → Definição → Ideação → <strong>Prototipação</strong> → Teste, o protótipo é o artefato que torna a ideia tangível para ser testada com usuários reais.</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua8" class="prev">Análise OO</a>
+        <a href="#" data-sec="ua10" class="next">Protótipos no Design</a>
+      </div>
+    </section>
+
+    <!-- UA10 -->
+    <section id="ua10">
+      <h2>UA10 — Utilizando Protótipos no Design</h2>
+      <p class="subtitle">Protótipos de alta fidelidade permitem que os usuários avaliem o software de forma prática e realista antes da entrega final.</p>
+
+      <h3>Protótipo de Alta Fidelidade</h3>
+      <p>Representa o produto com aparência e comportamento próximos do real: cores, tipografia, interações e transições funcionando. Ideal para:</p>
+      <ul>
+        <li>Testes de usabilidade com usuários finais.</li>
+        <li>Aprovação visual do cliente.</li>
+        <li>Guia de referência para os desenvolvedores.</li>
+        <li>Apresentações e demos.</li>
+      </ul>
+
+      <h3>Processo de Prototipação</h3>
+      <div class="diagram">Esboços → Wireframes → Mockup → Protótipo Navegável → Testes → Refinamento</div>
+
+      <h3>Boas Práticas</h3>
+      <ul>
+        <li><strong>Consistência visual:</strong> use sistemas de design (design systems) com componentes reutilizáveis.</li>
+        <li><strong>Mobile first:</strong> projete primeiro para telas pequenas, expanda para maiores.</li>
+        <li><strong>Hierarquia visual:</strong> o olho do usuário precisa de uma ordem de leitura clara.</li>
+        <li><strong>Feedback visual:</strong> estados de hover, loading, erro e sucesso devem estar no protótipo.</li>
+        <li><strong>Acessibilidade:</strong> contraste de cores, tamanho de fonte, áreas de toque adequadas.</li>
+      </ul>
+
+      <h3>Ferramentas populares</h3>
+      <div class="cards">
+        <div class="card"><h4>Figma</h4><p>Colaborativo, web-based, padrão da indústria. Gratuito para uso básico.</p></div>
+        <div class="card"><h4>Adobe XD</h4><p>Integrado ao ecossistema Adobe. Bom para prototipação interativa.</p></div>
+        <div class="card"><h4>Balsamiq</h4><p>Foco em wireframes rápidos e de baixa fidelidade.</p></div>
+        <div class="card"><h4>Astah</h4><p>Foco em diagramas UML com suporte a prototipação.</p></div>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua9" class="prev">Prototipação</a>
+        <a href="#" data-sec="ua11" class="next">Diagrama de Classes</a>
+      </div>
+    </section>
+
+    <!-- UA11 -->
+    <section id="ua11">
+      <h2>UA11 — Diagrama de Classes</h2>
+      <p class="subtitle">O diagrama de classes é o mais usado em UML — representa a estrutura estática do sistema: classes, atributos, métodos e relacionamentos.</p>
+
+      <h3>Anatomia de uma Classe</h3>
+      <div class="diagram">┌──────────────────────┐
+│       Produto        │  ← Nome da classe
+├──────────────────────┤
+│ - id: int            │
+│ - nome: String       │  ← Atributos (dados)
+│ - preco: double      │
+│ - estoque: int       │
+├──────────────────────┤
+│ + getPreco(): double │
+│ + setPreco(p: double)│  ← Métodos (comportamento)
+│ + disponivel(): bool │
+└──────────────────────┘</div>
+
+      <h3>Visibilidade</h3>
+      <table>
+        <tr><th>Símbolo</th><th>Visibilidade</th><th>Acessível de</th></tr>
+        <tr><td><code>+</code></td><td>public</td><td>Qualquer lugar</td></tr>
+        <tr><td><code>-</code></td><td>private</td><td>Apenas dentro da classe</td></tr>
+        <tr><td><code>#</code></td><td>protected</td><td>Classe e subclasses</td></tr>
+        <tr><td><code>~</code></td><td>package</td><td>Mesmo pacote</td></tr>
+      </table>
+
+      <h3>Multiplicidades</h3>
+      <table>
+        <tr><th>Notação</th><th>Significado</th></tr>
+        <tr><td><code>1</code></td><td>Exatamente um</td></tr>
+        <tr><td><code>0..1</code></td><td>Zero ou um</td></tr>
+        <tr><td><code>*</code> ou <code>0..*</code></td><td>Zero ou muitos</td></tr>
+        <tr><td><code>1..*</code></td><td>Um ou muitos</td></tr>
+        <tr><td><code>2..5</code></td><td>De dois a cinco</td></tr>
+      </table>
+
+      <h3>Exemplo — Sistema de Pedidos</h3>
+      <div class="diagram">  Cliente              Pedido              Produto
+┌──────────┐   1  *┌──────────┐  * *┌──────────┐
+│- nome    │───────│- data    │──────│- nome    │
+│- email   │       │- status  │      │- preco   │
+│+ comprar │       │+ calcTotal│     │- estoque │
+└──────────┘       └──────────┘      └──────────┘
+                        │ (contém)
+                   ┌────┴─────┐
+                   │ ItemPedido│
+                   │- qtd     │
+                   │- preco   │
+                   └──────────┘</div>
+
+      <div class="callout green">
+        <strong>Dica</strong>
+        <p>Uma relação <strong>N:N</strong> entre classes geralmente precisa de uma <strong>classe associativa</strong> (como ItemPedido acima) para armazenar os atributos da relação.</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua10" class="prev">Protótipos no Design</a>
+        <a href="#" data-sec="ua12" class="next">Diag. de Componentes</a>
+      </div>
+    </section>
+
+    <!-- UA12 -->
+    <section id="ua12">
+      <h2>UA12 — Diagrama de Componentes</h2>
+      <p class="subtitle">O diagrama de componentes mostra como o sistema é dividido em partes físicas (módulos, bibliotecas, executáveis) e como elas se conectam.</p>
+
+      <h3>Elementos</h3>
+      <ul>
+        <li><strong>Componente:</strong> unidade modular com interface bem definida (ex.: um módulo, DLL, pacote, microserviço).</li>
+        <li><strong>Interface fornecida:</strong> o que o componente oferece (<code>— ○</code>).</li>
+        <li><strong>Interface requerida:</strong> o que o componente precisa de outros (<code>— (</code>).</li>
+        <li><strong>Dependência:</strong> seta tracejada indicando que um componente usa outro.</li>
+      </ul>
+
+      <h3>Exemplo</h3>
+      <div class="diagram">┌─────────────────┐        ┌─────────────────┐
+│  «component»    │        │  «component»    │
+│   Frontend      │───────▶│   Backend API   │
+│                 │  REST  │                 │
+└─────────────────┘        └────────┬────────┘
+                                    │
+                                    ▼
+                           ┌─────────────────┐
+                           │  «component»    │
+                           │    Banco de     │
+                           │    Dados        │
+                           └─────────────────┘</div>
+
+      <h3>Por que usar?</h3>
+      <p>O diagrama de componentes é útil para:</p>
+      <ul>
+        <li>Planejar a <strong>estrutura de implantação</strong> do sistema.</li>
+        <li>Identificar <strong>dependências críticas</strong> entre módulos.</li>
+        <li>Comunicar a arquitetura para a equipe de DevOps/Infraestrutura.</li>
+        <li>Avaliar o impacto de trocar uma tecnologia por outra.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Componente vs Classe</strong>
+        <p>Classes representam estrutura lógica. Componentes representam unidades físicas/deployáveis. Um componente geralmente contém várias classes.</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua11" class="prev">Diagrama de Classes</a>
+        <a href="#" data-sec="ua13" class="next">Diag. de Sequência</a>
+      </div>
+    </section>
+
+    <!-- UA13 -->
+    <section id="ua13">
+      <h2>UA13 — Diagrama de Sequência</h2>
+      <p class="subtitle">Mostra a interação entre objetos ao longo do tempo — quem chama quem, em que ordem, com que parâmetros e retornos.</p>
+
+      <h3>Elementos</h3>
+      <ul>
+        <li><strong>Linha de vida (lifeline):</strong> linha vertical tracejada que representa um objeto ao longo do tempo.</li>
+        <li><strong>Mensagem:</strong> seta horizontal indicando chamada de método ou evento.</li>
+        <li><strong>Retorno:</strong> seta tracejada com o valor retornado.</li>
+        <li><strong>Barra de ativação:</strong> retângulo sobre a linha de vida indicando que o objeto está em execução.</li>
+        <li><strong>Fragmentos:</strong> <code>alt</code> (if/else), <code>loop</code>, <code>opt</code> (opcional), <code>par</code> (paralelo).</li>
+      </ul>
+
+      <h3>Exemplo — Login</h3>
+      <div class="diagram">Usuário       :Frontend     :AuthService    :Database
+   │                │                │                 │
+   │── login() ───▶│                │                 │
+   │                │── autenticar()─▶                │
+   │                │                │── buscaUser() ─▶
+   │                │                │◀─ userData ─────│
+   │                │                │                 │
+   │         ┌──────┴──────┐         │                 │
+   │         │   alt       │         │                 │
+   │         │ [válido]    │── ok() ─▶                │
+   │         │ [inválido]  │── erro()─▶               │
+   │         └──────┬──────┘         │                 │
+   │◀── resposta ───│                │                 │</div>
+
+      <h3>Dicas</h3>
+      <ul>
+        <li>Leia o diagrama de <strong>cima para baixo</strong> (ordem temporal).</li>
+        <li>Use <code>alt</code> para representar condições (if/else).</li>
+        <li>Use <code>loop</code> para repetições.</li>
+        <li>Mantenha o diagrama simples — nem todo método precisa aparecer.</li>
+      </ul>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua12" class="prev">Diag. de Componentes</a>
+        <a href="#" data-sec="ua14" class="next">Conceitos de BD</a>
+      </div>
+    </section>
+
+    <!-- UA14 -->
+    <section id="ua14">
+      <h2>UA14 — Conceitos de Banco de Dados</h2>
+      <p class="subtitle">Banco de dados relacional organiza dados em tabelas com linhas e colunas. SQL é a linguagem para criar, consultar e manipular esses dados.</p>
+
+      <h3>Conceitos Fundamentais</h3>
+      <div class="cards">
+        <div class="card"><h4>Tabela (Relação)</h4><p>Estrutura bidimensional com linhas (registros) e colunas (atributos).</p></div>
+        <div class="card"><h4>Chave Primária (PK)</h4><p>Coluna que identifica unicamente cada registro. Nunca nula.</p></div>
+        <div class="card"><h4>Chave Estrangeira (FK)</h4><p>Coluna que referencia a PK de outra tabela. Garante integridade referencial.</p></div>
+        <div class="card"><h4>Índice</h4><p>Estrutura que acelera buscas em troca de espaço em disco.</p></div>
+      </div>
+
+      <h3>SQL — Comandos Essenciais</h3>
+      <h4>SELECT (Consultar)</h4>
+      <pre><code><span class="kw">SELECT</span> nome, telefone
+<span class="kw">FROM</span> Cliente
+<span class="kw">WHERE</span> mes_aniversario = <span class="str">'janeiro'</span>
+<span class="kw">ORDER BY</span> nome;</code></pre>
+
+      <h4>INSERT (Inserir)</h4>
+      <pre><code><span class="kw">INSERT INTO</span> Cliente (nome, email, telefone)
+<span class="kw">VALUES</span> (<span class="str">'Marcus'</span>, <span class="str">'marcus@email.com'</span>, <span class="str">'(47) 99999-0000'</span>);</code></pre>
+
+      <h4>UPDATE (Atualizar)</h4>
+      <pre><code><span class="kw">UPDATE</span> Produto
+<span class="kw">SET</span> preco = <span class="num">29.90</span>
+<span class="kw">WHERE</span> id = <span class="num">15</span>;</code></pre>
+
+      <h4>JOIN (Junção)</h4>
+      <pre><code><span class="kw">SELECT</span> c.nome, p.data, p.status
+<span class="kw">FROM</span> Cliente c
+<span class="kw">INNER JOIN</span> Pedido p <span class="kw">ON</span> c.id = p.id_cliente
+<span class="kw">WHERE</span> p.status = <span class="str">'pendente'</span>;</code></pre>
+
+      <h3>Tipos de JOIN</h3>
+      <table>
+        <tr><th>Tipo</th><th>Retorna</th></tr>
+        <tr><td>INNER JOIN</td><td>Apenas registros com correspondência em ambas as tabelas</td></tr>
+        <tr><td>LEFT JOIN</td><td>Todos da tabela esquerda + correspondências da direita (null se não houver)</td></tr>
+        <tr><td>RIGHT JOIN</td><td>Todos da tabela direita + correspondências da esquerda</td></tr>
+        <tr><td>FULL JOIN</td><td>Todos de ambas as tabelas</td></tr>
+      </table>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua13" class="prev">Diag. de Sequência</a>
+        <a href="#" data-sec="ua15" class="next">DER</a>
+      </div>
+    </section>
+
+    <!-- UA15 -->
+    <section id="ua15">
+      <h2>UA15 — Diagrama de Entidade e Relacionamento (DER)</h2>
+      <p class="subtitle">O DER é uma representação gráfica da estrutura do banco de dados, mostrando entidades, atributos e como elas se relacionam.</p>
+
+      <h3>Elementos do DER</h3>
+      <table>
+        <tr><th>Símbolo</th><th>Elemento</th><th>Representação</th></tr>
+        <tr><td>Retângulo</td><td>Entidade</td><td>Tabela / objeto do domínio</td></tr>
+        <tr><td>Elipse</td><td>Atributo</td><td>Característica da entidade</td></tr>
+        <tr><td>Elipse sublinhada</td><td>Chave primária</td><td>Atributo identificador único</td></tr>
+        <tr><td>Losango</td><td>Relacionamento</td><td>Associação entre entidades</td></tr>
+        <tr><td>Linha com notação</td><td>Cardinalidade</td><td>1:1, 1:N, N:N</td></tr>
+      </table>
+
+      <h3>Cardinalidades</h3>
+      <div class="cards">
+        <div class="card"><h4>1:1 (Um para Um)</h4><p>Ex.: Pessoa ←→ CPF. Cada pessoa tem um CPF único.</p></div>
+        <div class="card"><h4>1:N (Um para Muitos)</h4><p>Ex.: Cliente ←→ Pedidos. Um cliente faz vários pedidos.</p></div>
+        <div class="card"><h4>N:N (Muitos para Muitos)</h4><p>Ex.: Pedido ←→ Produto. Um pedido tem vários produtos; um produto aparece em vários pedidos.</p></div>
+      </div>
+
+      <h3>Exemplo — Loja Virtual</h3>
+      <div class="diagram">  [Cliente] ──1:N── &lt;realiza&gt; ──N:1── [Pedido]
+                                                    │
+                                                  N:N
+                                                    │
+                                               [Produto]
+                                               (via ItemPedido)</div>
+
+      <h3>Relação N:N → Entidade Associativa</h3>
+      <p>Quando há N:N, criamos uma tabela intermediária para resolver a relação:</p>
+      <pre><code><span class="cm">-- Tabela associativa para Pedido x Produto</span>
+<span class="kw">CREATE TABLE</span> ItemPedido (
+  id_pedido  <span class="fn">INT</span> <span class="kw">REFERENCES</span> Pedido(id),
+  id_produto <span class="fn">INT</span> <span class="kw">REFERENCES</span> Produto(id),
+  quantidade <span class="fn">INT</span>,
+  preco_unit <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),
+  <span class="kw">PRIMARY KEY</span> (id_pedido, id_produto)
+);</code></pre>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua14" class="prev">Conceitos de BD</a>
+        <a href="#" data-sec="ua16" class="next">MER</a>
+      </div>
+    </section>
+
+    <!-- UA16 -->
+    <section id="ua16">
+      <h2>UA16 — Modelo de Entidades e Relacionamentos (MER)</h2>
+      <p class="subtitle">O MER é a especificação textual e detalhada do banco de dados — define tabelas, colunas, tipos, restrições e relacionamentos para guiar a implementação.</p>
+
+      <h3>Do DER ao MER</h3>
+      <p>O DER é a visão conceitual (abstrata). O MER é a visão lógica (implementável). Passos para converter:</p>
+      <ol>
+        <li>Cada <strong>entidade</strong> vira uma tabela.</li>
+        <li>Cada <strong>atributo</strong> vira uma coluna com tipo de dado.</li>
+        <li>O atributo-chave vira a <strong>PRIMARY KEY</strong>.</li>
+        <li>Relacionamentos 1:N geram uma <strong>FOREIGN KEY</strong> na tabela do lado N.</li>
+        <li>Relacionamentos N:N geram uma <strong>tabela associativa</strong>.</li>
+      </ol>
+
+      <h3>Tipos de Dados Comuns</h3>
+      <table>
+        <tr><th>Tipo</th><th>Uso</th><th>Exemplo</th></tr>
+        <tr><td>INT / INTEGER</td><td>Número inteiro</td><td>id, quantidade</td></tr>
+        <tr><td>VARCHAR(n)</td><td>Texto variável até n chars</td><td>nome, email</td></tr>
+        <tr><td>DECIMAL(p,s)</td><td>Número decimal exato</td><td>preco, salario</td></tr>
+        <tr><td>DATE</td><td>Data (YYYY-MM-DD)</td><td>data_nascimento</td></tr>
+        <tr><td>DATETIME</td><td>Data e hora</td><td>criado_em</td></tr>
+        <tr><td>BOOLEAN</td><td>Verdadeiro/Falso</td><td>ativo, verificado</td></tr>
+        <tr><td>TEXT</td><td>Texto longo</td><td>descricao, observacao</td></tr>
+      </table>
+
+      <h3>Exemplo completo — Imobiliária</h3>
+      <pre><code><span class="kw">CREATE TABLE</span> Proprietario (
+  id_proprietario <span class="fn">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+  nome    <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+  cpf     <span class="fn">VARCHAR</span>(<span class="num">14</span>)  <span class="kw">UNIQUE NOT NULL</span>,
+  telefone <span class="fn">VARCHAR</span>(<span class="num">18</span>)
+);
+
+<span class="kw">CREATE TABLE</span> Imovel (
+  id_imovel  <span class="fn">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+  endereco   <span class="fn">VARCHAR</span>(<span class="num">255</span>) <span class="kw">NOT NULL</span>,
+  tipo       <span class="fn">VARCHAR</span>(<span class="num">50</span>),
+  preco      <span class="fn">DECIMAL</span>(<span class="num">12</span>,<span class="num">2</span>),
+  id_prop    <span class="fn">INT</span> <span class="kw">NOT NULL REFERENCES</span> Proprietario(id_proprietario)
+);
+
+<span class="kw">CREATE TABLE</span> Contrato (
+  id_contrato  <span class="fn">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+  data_inicio  <span class="fn">DATE</span>,
+  data_fim     <span class="fn">DATE</span>,
+  id_imovel    <span class="fn">INT</span> <span class="kw">REFERENCES</span> Imovel(id_imovel),
+  id_cliente   <span class="fn">INT</span> <span class="kw">REFERENCES</span> Cliente(id_cliente),
+  id_corretor  <span class="fn">INT</span> <span class="kw">REFERENCES</span> Corretor(id_corretor)
+);</code></pre>
+
+      <div class="callout green">
+        <strong>Checklist de um bom MER</strong>
+        <p>✓ Toda tabela tem PRIMARY KEY &nbsp;|&nbsp; ✓ FKs garantem integridade &nbsp;|&nbsp; ✓ Campos obrigatórios com NOT NULL &nbsp;|&nbsp; ✓ Tipos de dados adequados &nbsp;|&nbsp; ✓ Sem redundância desnecessária</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua15" class="prev">DER</a>
+        <span></span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const links = document.querySelectorAll('[data-sec]');
+  const sections = document.querySelectorAll('section[id]');
+
+  function show(id) {
+    sections.forEach(s => s.classList.toggle('active', s.id === id));
+    links.forEach(a => a.classList.toggle('active', a.dataset.sec === id));
+    window.scrollTo(0, 0);
+  }
+
+  links.forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      show(a.dataset.sec);
+    });
+  });
+</script>
+</body>
+</html>

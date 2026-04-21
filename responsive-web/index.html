@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Web Development — Resumos ADS</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --accent3: #f78166;
+      --accent4: #d2a8ff;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+    .back:hover { color: var(--text); }
+    .back::before { content: "← "; }
+    header h1 { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .tag { font-size: 0.7rem; background: rgba(63,185,80,.15); color: var(--accent2); border: 1px solid rgba(63,185,80,.3); padding: .2rem .6rem; border-radius: 20px; margin-left: .5rem; }
+
+    .layout { display: flex; flex: 1; }
+
+    aside {
+      width: 260px; min-width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      position: sticky; top: 57px;
+      height: calc(100vh - 57px);
+      overflow-y: auto;
+    }
+    .sidebar-group { margin-bottom: 1.5rem; }
+    .sidebar-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--muted);
+      padding: .25rem 1.25rem .5rem; display: block;
+    }
+    aside a {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .45rem 1.25rem;
+      color: var(--muted); text-decoration: none;
+      font-size: 0.82rem; transition: background .15s, color .15s;
+      border-left: 2px solid transparent;
+    }
+    aside a:hover { background: rgba(255,255,255,.04); color: var(--text); }
+    aside a.active { background: rgba(88,166,255,.08); color: var(--accent); border-left-color: var(--accent); }
+    aside a .num { font-size: .7rem; opacity: .5; min-width: 24px; }
+
+    main { flex: 1; padding: 2.5rem 3rem; max-width: 860px; }
+    section { display: none; }
+    section.active { display: block; }
+    section > h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: .4rem; }
+    section > .subtitle { color: var(--muted); font-size: .95rem; margin-bottom: 2rem; line-height: 1.6; }
+    h3 { font-size: 1rem; font-weight: 700; color: var(--accent); margin: 2rem 0 .75rem; display: flex; align-items: center; gap: .5rem; }
+    h3::before { content: ""; display: inline-block; width: 3px; height: 1em; background: var(--accent); border-radius: 2px; }
+    h4 { font-size: .85rem; font-weight: 600; color: var(--accent4); margin: 1.25rem 0 .5rem; }
+    p { font-size: .9rem; color: var(--muted); line-height: 1.75; margin-bottom: .75rem; }
+    ul, ol { padding-left: 1.4rem; margin-bottom: .75rem; }
+    li { font-size: .88rem; color: var(--muted); line-height: 1.7; }
+    li strong { color: var(--text); }
+    strong { color: var(--text); }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .75rem; margin: 1rem 0; }
+    .card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+    .card h4 { color: var(--text); margin: 0 0 .4rem; font-size: .85rem; }
+    .card p { font-size: .8rem; margin: 0; }
+
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; overflow-x: auto; margin: .75rem 0; }
+    code { font-family: "Fira Code", "Cascadia Code", monospace; font-size: .82rem; color: #e6edf3; }
+    .kw  { color: #ff7b72; }
+    .tag-c { color: #7ee787; }
+    .attr { color: #79c0ff; }
+    .str { color: #a5d6ff; }
+    .cm  { color: #8b949e; font-style: italic; }
+    .fn  { color: #d2a8ff; }
+    .num { color: #79c0ff; }
+    .sel { color: #7ee787; }
+    .prop{ color: #79c0ff; }
+    .val { color: #a5d6ff; }
+    p code, li code { background: rgba(255,255,255,.07); border: 1px solid var(--border); border-radius: 4px; padding: .1rem .4rem; font-size: .8rem; color: var(--text); }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .85rem; }
+    th { background: var(--surface2); color: var(--text); font-weight: 600; padding: .6rem .9rem; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: .55rem .9rem; color: var(--muted); border-bottom: 1px solid rgba(48,54,61,.6); }
+    td:first-child { color: var(--text); }
+
+    .callout { background: rgba(88,166,255,.06); border: 1px solid rgba(88,166,255,.2); border-radius: var(--radius); padding: 1rem 1.25rem; margin: 1rem 0; }
+    .callout.green { background: rgba(63,185,80,.06); border-color: rgba(63,185,80,.2); }
+    .callout.orange { background: rgba(247,129,102,.06); border-color: rgba(247,129,102,.2); }
+    .callout strong { display: block; margin-bottom: .3rem; }
+    .callout p { margin: 0; font-size: .85rem; }
+
+    .result-box {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem 1.25rem; margin: .5rem 0;
+      font-size: .85rem; color: var(--muted);
+    }
+    .result-box strong { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; margin-bottom: .4rem; color: var(--accent); }
+
+    .section-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .section-nav a { color: var(--accent); text-decoration: none; font-size: .85rem; padding: .5rem .9rem; border: 1px solid var(--border); border-radius: var(--radius); transition: border-color .2s; }
+    .section-nav a:hover { border-color: var(--accent); }
+    .section-nav a.next::after { content: " →"; }
+    .section-nav a.prev::before { content: "← "; }
+
+    @media (max-width: 768px) {
+      aside { display: none; }
+      main { padding: 1.5rem 1.25rem; max-width: 100%; }
+      header { padding: .75rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="../index.html">Início</a>
+  <h1>Responsive Web Development <span class="tag">Em andamento</span></h1>
+</header>
+
+<div class="layout">
+
+  <aside id="sidebar">
+    <div class="sidebar-group">
+      <span class="sidebar-label">HTML</span>
+      <a href="#" data-sec="ua1" class="active"><span class="num">UA1</span> HTML — Fundamentos</a>
+      <a href="#" data-sec="ua2"><span class="num">UA2</span> HTML5</a>
+      <a href="#" data-sec="ua3"><span class="num">UA3</span> Formulários HTML5</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">CSS</span>
+      <a href="#" data-sec="ua4"><span class="num">UA4</span> CSS — Fundamentos</a>
+      <a href="#" data-sec="ua5"><span class="num">UA5</span> CSS3 — Avançado</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">Projeto</span>
+      <a href="#" data-sec="ua6"><span class="num">UA6</span> Definição do Sistema</a>
+      <a href="#" data-sec="ua7"><span class="num">UA7</span> Projetando o Site</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">JavaScript</span>
+      <a href="#" data-sec="ua8"><span class="num">UA8</span> JavaScript</a>
+      <a href="#" data-sec="ua9"><span class="num">UA9</span> AJAX e JSON</a>
+    </div>
+  </aside>
+
+  <main id="content">
+
+    <!-- UA1 -->
+    <section id="ua1" class="active">
+      <h2>UA1 — HTML: Fundamentos</h2>
+      <p class="subtitle">HTML (HyperText Markup Language) é a linguagem de marcação que estrutura o conteúdo das páginas web. É a base de tudo na web.</p>
+
+      <h3>Estrutura mínima de um documento HTML</h3>
+      <pre><code><span class="tag-c">&lt;!DOCTYPE html&gt;</span>
+<span class="tag-c">&lt;html</span> <span class="attr">lang</span>=<span class="str">"pt-BR"</span><span class="tag-c">&gt;</span>
+  <span class="tag-c">&lt;head&gt;</span>
+    <span class="tag-c">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span><span class="tag-c">&gt;</span>
+    <span class="tag-c">&lt;meta</span> <span class="attr">name</span>=<span class="str">"viewport"</span> <span class="attr">content</span>=<span class="str">"width=device-width, initial-scale=1.0"</span><span class="tag-c">&gt;</span>
+    <span class="tag-c">&lt;title&gt;</span>Minha Página<span class="tag-c">&lt;/title&gt;</span>
+  <span class="tag-c">&lt;/head&gt;</span>
+  <span class="tag-c">&lt;body&gt;</span>
+    <span class="tag-c">&lt;h1&gt;</span>Olá, mundo!<span class="tag-c">&lt;/h1&gt;</span>
+  <span class="tag-c">&lt;/body&gt;</span>
+<span class="tag-c">&lt;/html&gt;</span></code></pre>
+
+      <h3>DOCTYPE — por que importa?</h3>
+      <p>O <code>&lt;!DOCTYPE html&gt;</code> informa ao navegador a versão do HTML sendo usada, ativando o modo de renderização correto:</p>
+      <table>
+        <tr><th>DOCTYPE</th><th>Versão</th></tr>
+        <tr><td><code>&lt;!DOCTYPE html&gt;</code></td><td>HTML5 (recomendado)</td></tr>
+        <tr><td><code>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" ...&gt;</code></td><td>HTML 4.01 Strict</td></tr>
+        <tr><td><code>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" ...&gt;</code></td><td>XHTML 1.0 Strict</td></tr>
+      </table>
+
+      <h3>Tags essenciais</h3>
+      <div class="cards">
+        <div class="card"><h4>Títulos</h4><p><code>h1</code> a <code>h6</code> — hierarquia de títulos. Use apenas um <code>h1</code> por página.</p></div>
+        <div class="card"><h4>Parágrafos</h4><p><code>p</code> — bloco de texto. <code>br</code> para quebra de linha simples.</p></div>
+        <div class="card"><h4>Links</h4><p><code>a href="url"</code> — âncora. <code>target="_blank"</code> abre em nova aba.</p></div>
+        <div class="card"><h4>Imagens</h4><p><code>img src="..." alt="..."</code> — sempre use alt para acessibilidade.</p></div>
+        <div class="card"><h4>Listas</h4><p><code>ul</code> (não ordenada) e <code>ol</code> (ordenada). Itens com <code>li</code>.</p></div>
+        <div class="card"><h4>Divisões</h4><p><code>div</code> (bloco genérico) e <code>span</code> (inline genérico).</p></div>
+      </div>
+
+      <h3>Atributos globais importantes</h3>
+      <table>
+        <tr><th>Atributo</th><th>Descrição</th></tr>
+        <tr><td><code>id</code></td><td>Identificador único do elemento na página</td></tr>
+        <tr><td><code>class</code></td><td>Classe(s) para estilização CSS / seleção JS</td></tr>
+        <tr><td><code>style</code></td><td>CSS inline (evitar — prefira folhas externas)</td></tr>
+        <tr><td><code>title</code></td><td>Tooltip ao passar o mouse</td></tr>
+        <tr><td><code>data-*</code></td><td>Atributos customizados para uso em JS</td></tr>
+      </table>
+
+      <div class="callout green">
+        <strong>Boas práticas desde o início</strong>
+        <p>Sempre declare <code>lang</code> no <code>&lt;html&gt;</code>, use <code>charset="UTF-8"</code> e inclua a meta viewport — são os três obrigatórios para qualquer página profissional.</p>
+      </div>
+
+      <div class="section-nav">
+        <span></span>
+        <a href="#" data-sec="ua2" class="next">HTML5</a>
+      </div>
+    </section>
+
+    <!-- UA2 -->
+    <section id="ua2">
+      <h2>UA2 — HTML5</h2>
+      <p class="subtitle">HTML5 trouxe novas tags semânticas, APIs nativas e suporte a multimídia sem plugins.</p>
+
+      <h3>Tags Semânticas</h3>
+      <p>Semântica = significado. Tags semânticas descrevem o papel do conteúdo, melhorando acessibilidade e SEO:</p>
+      <pre><code><span class="tag-c">&lt;header&gt;</span>  <span class="cm">&lt;!-- cabeçalho da página/seção --&gt;</span>
+<span class="tag-c">&lt;nav&gt;</span>     <span class="cm">&lt;!-- menu de navegação --&gt;</span>
+<span class="tag-c">&lt;main&gt;</span>    <span class="cm">&lt;!-- conteúdo principal (único por página) --&gt;</span>
+<span class="tag-c">&lt;article&gt;</span> <span class="cm">&lt;!-- conteúdo independente (post, notícia) --&gt;</span>
+<span class="tag-c">&lt;section&gt;</span> <span class="cm">&lt;!-- seção temática do conteúdo --&gt;</span>
+<span class="tag-c">&lt;aside&gt;</span>   <span class="cm">&lt;!-- conteúdo lateral/complementar --&gt;</span>
+<span class="tag-c">&lt;footer&gt;</span>  <span class="cm">&lt;!-- rodapé da página/seção --&gt;</span></code></pre>
+
+      <h3>Estrutura semântica típica</h3>
+      <pre><code><span class="tag-c">&lt;body&gt;</span>
+  <span class="tag-c">&lt;header&gt;</span>
+    <span class="tag-c">&lt;nav&gt;</span>...<span class="tag-c">&lt;/nav&gt;</span>
+  <span class="tag-c">&lt;/header&gt;</span>
+
+  <span class="tag-c">&lt;main&gt;</span>
+    <span class="tag-c">&lt;section&gt;</span>
+      <span class="tag-c">&lt;article&gt;</span>...<span class="tag-c">&lt;/article&gt;</span>
+    <span class="tag-c">&lt;/section&gt;</span>
+    <span class="tag-c">&lt;aside&gt;</span>...<span class="tag-c">&lt;/aside&gt;</span>
+  <span class="tag-c">&lt;/main&gt;</span>
+
+  <span class="tag-c">&lt;footer&gt;</span>...<span class="tag-c">&lt;/footer&gt;</span>
+<span class="tag-c">&lt;/body&gt;</span></code></pre>
+
+      <h3>Multimídia nativa</h3>
+      <pre><code><span class="cm">&lt;!-- Vídeo --&gt;</span>
+<span class="tag-c">&lt;video</span> <span class="attr">controls</span> <span class="attr">width</span>=<span class="str">"640"</span><span class="tag-c">&gt;</span>
+  <span class="tag-c">&lt;source</span> <span class="attr">src</span>=<span class="str">"video.mp4"</span> <span class="attr">type</span>=<span class="str">"video/mp4"</span><span class="tag-c">&gt;</span>
+<span class="tag-c">&lt;/video&gt;</span>
+
+<span class="cm">&lt;!-- Áudio --&gt;</span>
+<span class="tag-c">&lt;audio</span> <span class="attr">controls</span><span class="tag-c">&gt;</span>
+  <span class="tag-c">&lt;source</span> <span class="attr">src</span>=<span class="str">"audio.mp3"</span> <span class="attr">type</span>=<span class="str">"audio/mpeg"</span><span class="tag-c">&gt;</span>
+<span class="tag-c">&lt;/audio&gt;</span></code></pre>
+
+      <h3>Novas APIs HTML5</h3>
+      <div class="cards">
+        <div class="card"><h4>Canvas</h4><p>Área de desenho 2D via JavaScript. Gráficos, jogos, animações.</p></div>
+        <div class="card"><h4>Geolocation</h4><p>Acesso à localização do usuário com permissão.</p></div>
+        <div class="card"><h4>LocalStorage</h4><p>Armazenamento de dados no navegador sem expiração.</p></div>
+        <div class="card"><h4>Web Workers</h4><p>Scripts em background thread — sem travar a UI.</p></div>
+      </div>
+
+      <h3>div vs. semânticas — quando usar cada</h3>
+      <table>
+        <tr><th>Situação</th><th>Use</th></tr>
+        <tr><td>Conteúdo com papel claro (nav, header...)</td><td>Tag semântica</td></tr>
+        <tr><td>Container só para layout/estilo</td><td><code>div</code></td></tr>
+        <tr><td>Texto inline sem papel semântico</td><td><code>span</code></td></tr>
+      </table>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua1" class="prev">HTML Fundamentos</a>
+        <a href="#" data-sec="ua3" class="next">Formulários HTML5</a>
+      </div>
+    </section>
+
+    <!-- UA3 -->
+    <section id="ua3">
+      <h2>UA3 — Formulários HTML5</h2>
+      <p class="subtitle">HTML5 expandiu o elemento form com novos tipos de input e validação nativa no navegador, sem precisar de JavaScript.</p>
+
+      <h3>Estrutura de um formulário</h3>
+      <pre><code><span class="tag-c">&lt;form</span> <span class="attr">action</span>=<span class="str">"/enviar"</span> <span class="attr">method</span>=<span class="str">"post"</span><span class="tag-c">&gt;</span>
+
+  <span class="tag-c">&lt;label</span> <span class="attr">for</span>=<span class="str">"nome"</span><span class="tag-c">&gt;</span>Nome:<span class="tag-c">&lt;/label&gt;</span>
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">id</span>=<span class="str">"nome"</span> <span class="attr">name</span>=<span class="str">"nome"</span> <span class="attr">required</span><span class="tag-c">&gt;</span>
+
+  <span class="tag-c">&lt;label</span> <span class="attr">for</span>=<span class="str">"email"</span><span class="tag-c">&gt;</span>E-mail:<span class="tag-c">&lt;/label&gt;</span>
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="str">"email"</span> <span class="attr">id</span>=<span class="str">"email"</span> <span class="attr">name</span>=<span class="str">"email"</span> <span class="attr">required</span><span class="tag-c">&gt;</span>
+
+  <span class="tag-c">&lt;button</span> <span class="attr">type</span>=<span class="str">"submit"</span><span class="tag-c">&gt;</span>Enviar<span class="tag-c">&lt;/button&gt;</span>
+<span class="tag-c">&lt;/form&gt;</span></code></pre>
+
+      <h3>Novos tipos de input em HTML5</h3>
+      <table>
+        <tr><th>type</th><th>O que faz</th><th>Validação automática</th></tr>
+        <tr><td><code>email</code></td><td>Campo de e-mail</td><td>Verifica formato name@domain</td></tr>
+        <tr><td><code>url</code></td><td>Campo de URL</td><td>Verifica formato http://...</td></tr>
+        <tr><td><code>number</code></td><td>Número com spinner</td><td>min, max, step</td></tr>
+        <tr><td><code>range</code></td><td>Slider numérico</td><td>min, max, step</td></tr>
+        <tr><td><code>date</code></td><td>Seletor de data</td><td>Formato e intervalo</td></tr>
+        <tr><td><code>time</code></td><td>Seletor de hora</td><td>Formato HH:MM</td></tr>
+        <tr><td><code>color</code></td><td>Seletor de cor</td><td>Retorna valor hex</td></tr>
+        <tr><td><code>tel</code></td><td>Telefone</td><td>Teclado numérico no mobile</td></tr>
+        <tr><td><code>search</code></td><td>Campo de busca</td><td>Botão limpar nativo</td></tr>
+      </table>
+
+      <h3>Atributos de validação</h3>
+      <pre><code><span class="cm">&lt;!-- Obrigatório --&gt;</span>
+<span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">required</span><span class="tag-c">&gt;</span>
+
+<span class="cm">&lt;!-- Comprimento mínimo/máximo --&gt;</span>
+<span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">minlength</span>=<span class="str">"3"</span> <span class="attr">maxlength</span>=<span class="str">"50"</span><span class="tag-c">&gt;</span>
+
+<span class="cm">&lt;!-- Intervalo numérico --&gt;</span>
+<span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="str">"number"</span> <span class="attr">min</span>=<span class="str">"1"</span> <span class="attr">max</span>=<span class="str">"100"</span> <span class="attr">step</span>=<span class="str">"5"</span><span class="tag-c">&gt;</span>
+
+<span class="cm">&lt;!-- Padrão regex --&gt;</span>
+<span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">pattern</span>=<span class="str">"[0-9]{5}-[0-9]{3}"</span> <span class="attr">placeholder</span>=<span class="str">"00000-000"</span><span class="tag-c">&gt;</span></code></pre>
+
+      <h3>Outros elementos de formulário</h3>
+      <pre><code><span class="cm">&lt;!-- Seleção --&gt;</span>
+<span class="tag-c">&lt;select</span> <span class="attr">name</span>=<span class="str">"estado"</span><span class="tag-c">&gt;</span>
+  <span class="tag-c">&lt;option</span> <span class="attr">value</span>=<span class="str">"sc"</span><span class="tag-c">&gt;</span>Santa Catarina<span class="tag-c">&lt;/option&gt;</span>
+  <span class="tag-c">&lt;option</span> <span class="attr">value</span>=<span class="str">"sp"</span><span class="tag-c">&gt;</span>São Paulo<span class="tag-c">&lt;/option&gt;</span>
+<span class="tag-c">&lt;/select&gt;</span>
+
+<span class="cm">&lt;!-- Área de texto --&gt;</span>
+<span class="tag-c">&lt;textarea</span> <span class="attr">name</span>=<span class="str">"msg"</span> <span class="attr">rows</span>=<span class="str">"4"</span> <span class="attr">cols</span>=<span class="str">"40"</span><span class="tag-c">&gt;&lt;/textarea&gt;</span>
+
+<span class="cm">&lt;!-- Checkbox --&gt;</span>
+<span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="str">"checkbox"</span> <span class="attr">name</span>=<span class="str">"aceito"</span> <span class="attr">id</span>=<span class="str">"aceito"</span><span class="tag-c">&gt;</span>
+<span class="tag-c">&lt;label</span> <span class="attr">for</span>=<span class="str">"aceito"</span><span class="tag-c">&gt;</span>Aceito os termos<span class="tag-c">&lt;/label&gt;</span></code></pre>
+
+      <div class="callout">
+        <strong>GET vs POST no formulário</strong>
+        <p><code>method="get"</code> — dados na URL (visível, para buscas). <code>method="post"</code> — dados no body da requisição (para dados sensíveis, cadastros).</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua2" class="prev">HTML5</a>
+        <a href="#" data-sec="ua4" class="next">CSS Fundamentos</a>
+      </div>
+    </section>
+
+    <!-- UA4 -->
+    <section id="ua4">
+      <h2>UA4 — CSS: Fundamentos</h2>
+      <p class="subtitle">CSS (Cascading Style Sheets) controla a apresentação visual do HTML — cores, fontes, espaçamentos, layout e muito mais.</p>
+
+      <h3>Como aplicar CSS</h3>
+      <table>
+        <tr><th>Método</th><th>Como</th><th>Quando usar</th></tr>
+        <tr><td>Externo</td><td><code>&lt;link rel="stylesheet" href="style.css"&gt;</code></td><td>Sempre — é o padrão</td></tr>
+        <tr><td>Interno</td><td><code>&lt;style&gt;</code> no <code>&lt;head&gt;</code></td><td>Prototipação rápida</td></tr>
+        <tr><td>Inline</td><td><code>style="..."</code> na tag</td><td>Exceção — evitar</td></tr>
+      </table>
+
+      <h3>Seletores</h3>
+      <pre><code><span class="cm">/* Tag */</span>
+<span class="sel">p</span> { <span class="prop">color</span>: <span class="val">red</span>; }
+
+<span class="cm">/* Classe */</span>
+<span class="sel">.destaque</span> { <span class="prop">font-weight</span>: <span class="val">bold</span>; }
+
+<span class="cm">/* ID */</span>
+<span class="sel">#cabecalho</span> { <span class="prop">background</span>: <span class="val">#333</span>; }
+
+<span class="cm">/* Descendente */</span>
+<span class="sel">nav a</span> { <span class="prop">text-decoration</span>: <span class="val">none</span>; }
+
+<span class="cm">/* Pseudo-classe */</span>
+<span class="sel">a:hover</span> { <span class="prop">color</span>: <span class="val">blue</span>; }
+<span class="sel">li:first-child</span> { <span class="prop">font-weight</span>: <span class="val">bold</span>; }
+
+<span class="cm">/* Pseudo-elemento */</span>
+<span class="sel">p::first-line</span> { <span class="prop">font-size</span>: <span class="val">1.2em</span>; }</code></pre>
+
+      <h3>Box Model</h3>
+      <p>Todo elemento HTML é uma caixa com quatro áreas:</p>
+      <pre><code><span class="cm">┌─────────────────────────────┐ ← margin
+│  ┌───────────────────────┐  │ ← border
+│  │  ┌─────────────────┐  │  │ ← padding
+│  │  │    CONTEÚDO     │  │  │
+│  │  └─────────────────┘  │  │
+│  └───────────────────────┘  │
+└─────────────────────────────┘</span></code></pre>
+      <pre><code><span class="sel">.caixa</span> {
+  <span class="prop">width</span>: <span class="val">300px</span>;
+  <span class="prop">padding</span>: <span class="val">16px</span>;
+  <span class="prop">border</span>: <span class="val">2px solid #ccc</span>;
+  <span class="prop">margin</span>: <span class="val">24px auto</span>;  <span class="cm">/* auto centraliza horizontalmente */</span>
+  <span class="prop">box-sizing</span>: <span class="val">border-box</span>; <span class="cm">/* padding incluso na width */</span>
+}</code></pre>
+
+      <h3>Especificidade</h3>
+      <p>Quando há conflito de regras CSS, vence a de maior especificidade:</p>
+      <table>
+        <tr><th>Seletor</th><th>Especificidade</th></tr>
+        <tr><td><code>style=""</code> (inline)</td><td>1,0,0,0 — ganha sempre</td></tr>
+        <tr><td><code>#id</code></td><td>0,1,0,0</td></tr>
+        <tr><td><code>.classe</code>, <code>[attr]</code>, <code>:pseudo</code></td><td>0,0,1,0</td></tr>
+        <tr><td>tag (<code>p</code>, <code>div</code>...)</td><td>0,0,0,1</td></tr>
+        <tr><td><code>*</code> (universal)</td><td>0,0,0,0</td></tr>
+      </table>
+
+      <div class="callout green">
+        <strong>Dica prática</strong>
+        <p>Prefira classes a IDs no CSS — são reutilizáveis e causam menos problemas de especificidade.</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua3" class="prev">Formulários HTML5</a>
+        <a href="#" data-sec="ua5" class="next">CSS3 Avançado</a>
+      </div>
+    </section>
+
+    <!-- UA5 -->
+    <section id="ua5">
+      <h2>UA5 — CSS3: Avançado e Responsividade</h2>
+      <p class="subtitle">CSS3 adicionou Flexbox, Grid, variáveis, animações e media queries — as ferramentas centrais do design responsivo moderno.</p>
+
+      <h3>Flexbox</h3>
+      <p>Ideal para layouts em uma dimensão (linha ou coluna):</p>
+      <pre><code><span class="sel">.container</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">justify-content</span>: <span class="val">space-between</span>; <span class="cm">/* eixo principal */</span>
+  <span class="prop">align-items</span>: <span class="val">center</span>;          <span class="cm">/* eixo cruzado */</span>
+  <span class="prop">flex-wrap</span>: <span class="val">wrap</span>;              <span class="cm">/* quebra linha se necessário */</span>
+  <span class="prop">gap</span>: <span class="val">1rem</span>;
+}</code></pre>
+
+      <h3>CSS Grid</h3>
+      <p>Ideal para layouts em duas dimensões (linhas e colunas):</p>
+      <pre><code><span class="sel">.grid</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">repeat(3, 1fr)</span>;  <span class="cm">/* 3 colunas iguais */</span>
+  <span class="prop">grid-template-rows</span>: <span class="val">auto</span>;
+  <span class="prop">gap</span>: <span class="val">1.5rem</span>;
+}
+
+<span class="cm">/* Item ocupando 2 colunas */</span>
+<span class="sel">.destaque</span> {
+  <span class="prop">grid-column</span>: <span class="val">1 / 3</span>;
+}</code></pre>
+
+      <h3>Media Queries — Responsividade</h3>
+      <pre><code><span class="cm">/* Mobile first: estilos base são para mobile */</span>
+<span class="sel">.card</span> { <span class="prop">width</span>: <span class="val">100%</span>; }
+
+<span class="cm">/* Tablet */</span>
+<span class="kw">@media</span> (min-width: <span class="num">768px</span>) {
+  <span class="sel">.card</span> { <span class="prop">width</span>: <span class="val">48%</span>; }
+}
+
+<span class="cm">/* Desktop */</span>
+<span class="kw">@media</span> (min-width: <span class="num">1024px</span>) {
+  <span class="sel">.card</span> { <span class="prop">width</span>: <span class="val">30%</span>; }
+}</code></pre>
+
+      <h3>Variáveis CSS (Custom Properties)</h3>
+      <pre><code><span class="sel">:root</span> {
+  <span class="prop">--cor-primaria</span>: <span class="val">#3b82f6</span>;
+  <span class="prop">--espaco-base</span>: <span class="val">1rem</span>;
+  <span class="prop">--fonte-titulo</span>: <span class="val">'Inter', sans-serif</span>;
+}
+
+<span class="sel">h1</span> {
+  <span class="prop">color</span>: <span class="val">var(--cor-primaria)</span>;
+  <span class="prop">font-family</span>: <span class="val">var(--fonte-titulo)</span>;
+  <span class="prop">margin-bottom</span>: <span class="val">var(--espaco-base)</span>;
+}</code></pre>
+
+      <h3>Transições e Animações</h3>
+      <pre><code><span class="cm">/* Transição suave */</span>
+<span class="sel">button</span> {
+  <span class="prop">background</span>: <span class="val">#3b82f6</span>;
+  <span class="prop">transition</span>: <span class="val">background 0.3s ease, transform 0.2s</span>;
+}
+<span class="sel">button:hover</span> {
+  <span class="prop">background</span>: <span class="val">#1d4ed8</span>;
+  <span class="prop">transform</span>: <span class="val">scale(1.05)</span>;
+}
+
+<span class="cm">/* Animação com keyframes */</span>
+<span class="kw">@keyframes</span> <span class="fn">fadeIn</span> {
+  <span class="kw">from</span> { <span class="prop">opacity</span>: <span class="val">0</span>; <span class="prop">transform</span>: <span class="val">translateY(20px)</span>; }
+  <span class="kw">to</span>   { <span class="prop">opacity</span>: <span class="val">1</span>; <span class="prop">transform</span>: <span class="val">translateY(0)</span>; }
+}
+<span class="sel">.card</span> { <span class="prop">animation</span>: <span class="val">fadeIn 0.4s ease</span>; }</code></pre>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua4" class="prev">CSS Fundamentos</a>
+        <a href="#" data-sec="ua6" class="next">Definição do Sistema</a>
+      </div>
+    </section>
+
+    <!-- UA6 -->
+    <section id="ua6">
+      <h2>UA6 — Definição do Sistema</h2>
+      <p class="subtitle">Antes de codificar, é preciso definir claramente o que o sistema vai fazer, para quem e como será estruturado.</p>
+
+      <h3>O que definir antes de começar</h3>
+      <ul>
+        <li><strong>Objetivo do sistema:</strong> qual problema ele resolve?</li>
+        <li><strong>Público-alvo:</strong> quem vai usar? Quais são suas necessidades?</li>
+        <li><strong>Funcionalidades principais:</strong> o que o usuário pode fazer?</li>
+        <li><strong>Tecnologias:</strong> frontend (HTML/CSS/JS), backend, banco de dados.</li>
+        <li><strong>Arquitetura:</strong> como as partes se conectam?</li>
+      </ul>
+
+      <h3>Documento de Definição do Sistema</h3>
+      <div class="cards">
+        <div class="card"><h4>Visão Geral</h4><p>Nome, propósito, escopo e principais usuários do sistema.</p></div>
+        <div class="card"><h4>Requisitos Funcionais</h4><p>O que o sistema deve fazer (cadastrar, listar, autenticar...).</p></div>
+        <div class="card"><h4>Requisitos Não Funcionais</h4><p>Desempenho, segurança, responsividade, acessibilidade.</p></div>
+        <div class="card"><h4>Stack Tecnológico</h4><p>Linguagens, frameworks, banco de dados e ferramentas escolhidas.</p></div>
+      </div>
+
+      <h3>Estrutura de pastas recomendada</h3>
+      <pre><code>projeto/
+├── index.html
+├── css/
+│   └── style.css
+├── js/
+│   └── main.js
+├── img/
+│   └── logo.png
+└── pages/
+    ├── sobre.html
+    └── contato.html</code></pre>
+
+      <div class="callout">
+        <strong>Por que definir antes de codificar?</strong>
+        <p>Sem uma definição clara, você corre o risco de construir a coisa certa do jeito errado — ou a coisa errada do jeito certo. Dez minutos de planejamento economizam horas de reescrita.</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua5" class="prev">CSS3 Avançado</a>
+        <a href="#" data-sec="ua7" class="next">Projetando o Site</a>
+      </div>
+    </section>
+
+    <!-- UA7 -->
+    <section id="ua7">
+      <h2>UA7 — Projetando o Site</h2>
+      <p class="subtitle">Projetar o site significa definir sua arquitetura de informação, fluxo de navegação e identidade visual antes de escrever código.</p>
+
+      <h3>Arquitetura de Informação</h3>
+      <p>Organização e estruturação do conteúdo para que o usuário encontre o que precisa facilmente:</p>
+      <ul>
+        <li><strong>Mapa do site (Sitemap):</strong> hierarquia de todas as páginas.</li>
+        <li><strong>Fluxo do usuário:</strong> caminhos que o usuário percorre para completar tarefas.</li>
+        <li><strong>Navegação:</strong> menus, breadcrumbs, links internos.</li>
+      </ul>
+
+      <h3>Processo de Design</h3>
+      <table>
+        <tr><th>Etapa</th><th>Entregável</th></tr>
+        <tr><td>1. Pesquisa / briefing</td><td>Personas, benchmark de concorrentes</td></tr>
+        <tr><td>2. Arquitetura</td><td>Sitemap, fluxos de usuário</td></tr>
+        <tr><td>3. Wireframe</td><td>Esboço de baixa fidelidade da estrutura</td></tr>
+        <tr><td>4. Identidade visual</td><td>Paleta de cores, tipografia, ícones</td></tr>
+        <tr><td>5. Mockup/Protótipo</td><td>Telas com visual final no Figma</td></tr>
+        <tr><td>6. Implementação</td><td>HTML + CSS + JS</td></tr>
+      </table>
+
+      <h3>Boas práticas de UX/UI</h3>
+      <div class="cards">
+        <div class="card"><h4>Consistência</h4><p>Mesmos estilos, comportamentos e vocabulário em toda a interface.</p></div>
+        <div class="card"><h4>Feedback</h4><p>O sistema sempre avisa o usuário sobre o resultado de suas ações.</p></div>
+        <div class="card"><h4>Mobile First</h4><p>Projete primeiro para a menor tela, expanda progressivamente.</p></div>
+        <div class="card"><h4>Acessibilidade</h4><p>Contraste adequado, texto alternativo, navegação por teclado.</p></div>
+      </div>
+
+      <h3>Paleta de cores — referência rápida</h3>
+      <p>Use a regra <strong>60-30-10</strong>: 60% cor dominante (fundo), 30% cor secundária (texto/elementos), 10% cor de destaque (CTAs).</p>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua6" class="prev">Definição do Sistema</a>
+        <a href="#" data-sec="ua8" class="next">JavaScript</a>
+      </div>
+    </section>
+
+    <!-- UA8 -->
+    <section id="ua8">
+      <h2>UA8 — JavaScript: Comportamento</h2>
+      <p class="subtitle">JavaScript adiciona interatividade e comportamento dinâmico às páginas web — manipulação do DOM, eventos, validações e muito mais.</p>
+
+      <h3>Fundamentos</h3>
+      <pre><code><span class="cm">// Variáveis</span>
+<span class="kw">const</span> nome = <span class="str">"Marcus"</span>;   <span class="cm">// imutável (preferir)</span>
+<span class="kw">let</span> idade = <span class="num">25</span>;          <span class="cm">// mutável</span>
+
+<span class="cm">// Funções</span>
+<span class="kw">function</span> <span class="fn">saudar</span>(nome) {
+  <span class="kw">return</span> <span class="str">`Olá, ${nome}!`</span>;
+}
+
+<span class="cm">// Arrow function</span>
+<span class="kw">const</span> <span class="fn">dobrar</span> = (n) => n * <span class="num">2</span>;
+
+<span class="cm">// Arrays</span>
+<span class="kw">const</span> frutas = [<span class="str">"maçã"</span>, <span class="str">"banana"</span>, <span class="str">"uva"</span>];
+frutas.<span class="fn">forEach</span>(f => console.<span class="fn">log</span>(f));
+<span class="kw">const</span> maiusculas = frutas.<span class="fn">map</span>(f => f.<span class="fn">toUpperCase</span>());</code></pre>
+
+      <h3>Manipulação do DOM</h3>
+      <pre><code><span class="cm">// Selecionar elementos</span>
+<span class="kw">const</span> btn = document.<span class="fn">querySelector</span>(<span class="str">'#meu-botao'</span>);
+<span class="kw">const</span> cards = document.<span class="fn">querySelectorAll</span>(<span class="str">'.card'</span>);
+
+<span class="cm">// Modificar conteúdo</span>
+btn.textContent = <span class="str">'Clique aqui'</span>;
+btn.style.background = <span class="str">'#3b82f6'</span>;
+btn.classList.<span class="fn">add</span>(<span class="str">'ativo'</span>);
+btn.classList.<span class="fn">toggle</span>(<span class="str">'visivel'</span>);
+
+<span class="cm">// Criar e inserir elemento</span>
+<span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+li.textContent = <span class="str">'Novo item'</span>;
+document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>).<span class="fn">appendChild</span>(li);</code></pre>
+
+      <h3>Eventos</h3>
+      <pre><code><span class="cm">// Click</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => {
+  <span class="fn">alert</span>(<span class="str">'Clicou!'</span>);
+});
+
+<span class="cm">// Formulário</span>
+document.<span class="fn">querySelector</span>(<span class="str">'form'</span>)
+  .<span class="fn">addEventListener</span>(<span class="str">'submit'</span>, (e) => {
+    e.<span class="fn">preventDefault</span>(); <span class="cm">// impede o envio padrão</span>
+    <span class="kw">const</span> nome = document.<span class="fn">querySelector</span>(<span class="str">'#nome'</span>).value;
+    console.<span class="fn">log</span>(<span class="str">`Enviando: ${nome}`</span>);
+  });
+
+<span class="cm">// Input em tempo real</span>
+document.<span class="fn">querySelector</span>(<span class="str">'#busca'</span>)
+  .<span class="fn">addEventListener</span>(<span class="str">'input'</span>, (e) => {
+    console.<span class="fn">log</span>(e.target.value);
+  });</code></pre>
+
+      <h3>Eventos comuns</h3>
+      <table>
+        <tr><th>Evento</th><th>Quando dispara</th></tr>
+        <tr><td><code>click</code></td><td>Clique do mouse</td></tr>
+        <tr><td><code>submit</code></td><td>Envio de formulário</td></tr>
+        <tr><td><code>input</code></td><td>Mudança em campo de texto</td></tr>
+        <tr><td><code>change</code></td><td>Mudança confirmada (blur de select)</td></tr>
+        <tr><td><code>keydown</code> / <code>keyup</code></td><td>Tecla pressionada/solta</td></tr>
+        <tr><td><code>mouseover</code></td><td>Mouse entra no elemento</td></tr>
+        <tr><td><code>DOMContentLoaded</code></td><td>DOM completamente carregado</td></tr>
+      </table>
+
+      <div class="callout green">
+        <strong>Boas práticas</strong>
+        <p>Use <code>const</code> por padrão; use <code>let</code> só quando precisar reatribuir. Evite <code>var</code> — tem escopo de função e causa bugs difíceis de rastrear.</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua7" class="prev">Projetando o Site</a>
+        <a href="#" data-sec="ua9" class="next">AJAX e JSON</a>
+      </div>
+    </section>
+
+    <!-- UA9 -->
+    <section id="ua9">
+      <h2>UA9 — AJAX e JSON</h2>
+      <p class="subtitle">AJAX permite atualizar partes da página sem recarregá-la por completo, consumindo dados de APIs em formato JSON.</p>
+
+      <h3>O que é AJAX?</h3>
+      <p><strong>Asynchronous JavaScript And XML</strong> — técnica para fazer requisições HTTP assíncronas a partir do navegador, sem recarregar a página.</p>
+
+      <h3>JSON — JavaScript Object Notation</h3>
+      <p>Formato leve para troca de dados entre cliente e servidor:</p>
+      <pre><code>{
+  <span class="str">"usuario"</span>: {
+    <span class="str">"id"</span>: <span class="num">1</span>,
+    <span class="str">"nome"</span>: <span class="str">"Marcus"</span>,
+    <span class="str">"ativo"</span>: <span class="kw">true</span>,
+    <span class="str">"notas"</span>: [<span class="num">8.5</span>, <span class="num">9.0</span>, <span class="num">7.5</span>],
+    <span class="str">"endereco"</span>: <span class="kw">null</span>
+  }
+}</code></pre>
+
+      <h3>Fetch API — moderno e padrão</h3>
+      <pre><code><span class="cm">// GET — buscar dados</span>
+<span class="fn">fetch</span>(<span class="str">'https://api.exemplo.com/usuarios'</span>)
+  .<span class="fn">then</span>(res => res.<span class="fn">json</span>())
+  .<span class="fn">then</span>(dados => {
+    dados.<span class="fn">forEach</span>(u => console.<span class="fn">log</span>(u.nome));
+  })
+  .<span class="fn">catch</span>(err => console.<span class="fn">error</span>(<span class="str">'Erro:'</span>, err));
+
+<span class="cm">// POST — enviar dados</span>
+<span class="fn">fetch</span>(<span class="str">'/api/usuarios'</span>, {
+  method: <span class="str">'POST'</span>,
+  headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+  body: JSON.<span class="fn">stringify</span>({ nome: <span class="str">'Ana'</span>, email: <span class="str">'ana@email.com'</span> })
+})
+  .<span class="fn">then</span>(res => res.<span class="fn">json</span>())
+  .<span class="fn">then</span>(novo => console.<span class="fn">log</span>(<span class="str">'Criado:'</span>, novo));</code></pre>
+
+      <h3>Async/Await — sintaxe mais limpa</h3>
+      <pre><code><span class="kw">async function</span> <span class="fn">buscarUsuarios</span>() {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/usuarios'</span>);
+    <span class="kw">const</span> dados = <span class="kw">await</span> res.<span class="fn">json</span>();
+
+    <span class="kw">const</span> lista = document.<span class="fn">querySelector</span>(<span class="str">'#lista'</span>);
+    dados.<span class="fn">forEach</span>(u => {
+      <span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+      li.textContent = u.nome;
+      lista.<span class="fn">appendChild</span>(li);
+    });
+  } <span class="kw">catch</span> (err) {
+    console.<span class="fn">error</span>(<span class="str">'Falha na requisição:'</span>, err);
+  }
+}
+
+<span class="fn">buscarUsuarios</span>();</code></pre>
+
+      <h3>JSON.stringify e JSON.parse</h3>
+      <pre><code><span class="cm">// Objeto JS → string JSON</span>
+<span class="kw">const</span> str = JSON.<span class="fn">stringify</span>({ nome: <span class="str">"Ana"</span>, idade: <span class="num">30</span> });
+<span class="cm">// → '{"nome":"Ana","idade":30}'</span>
+
+<span class="cm">// String JSON → objeto JS</span>
+<span class="kw">const</span> obj = JSON.<span class="fn">parse</span>(<span class="str">'{"nome":"Ana","idade":30}'</span>);
+<span class="cm">// → { nome: 'Ana', idade: 30 }</span>
+
+<span class="cm">// Salvar no LocalStorage</span>
+localStorage.<span class="fn">setItem</span>(<span class="str">'usuario'</span>, JSON.<span class="fn">stringify</span>(obj));
+<span class="kw">const</span> salvo = JSON.<span class="fn">parse</span>(localStorage.<span class="fn">getItem</span>(<span class="str">'usuario'</span>));</code></pre>
+
+      <div class="callout">
+        <strong>Sobre XMLHttpRequest</strong>
+        <p>O <code>XMLHttpRequest</code> é a API antiga de AJAX. O <code>fetch</code> é o padrão moderno e deve ser preferido. <code>fetch</code> + <code>async/await</code> é a combinação mais usada hoje.</p>
+      </div>
+
+      <div class="section-nav">
+        <a href="#" data-sec="ua8" class="prev">JavaScript</a>
+        <span></span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const links = document.querySelectorAll('[data-sec]');
+  const sections = document.querySelectorAll('section[id]');
+
+  function show(id) {
+    sections.forEach(s => s.classList.toggle('active', s.id === id));
+    links.forEach(a => a.classList.toggle('active', a.dataset.sec === id));
+    window.scrollTo(0, 0);
+  }
+
+  links.forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      show(a.dataset.sec);
+    });
+  });
+</script>
+</body>
+</html>
