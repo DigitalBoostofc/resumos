@@ -323,6 +323,12 @@ header nav a:hover { color: var(--text); }
   border: 1px solid rgba(88, 166, 255, .18);
 }
 
+.status-soon {
+  background: rgba(139, 148, 158, .06);
+  color: var(--muted);
+  border: 1px solid rgba(139, 148, 158, .14);
+}
+
 /* ── Card text ── */
 .card h3 {
   font-size: 1.05rem;
